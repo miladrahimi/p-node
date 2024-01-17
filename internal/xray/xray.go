@@ -51,7 +51,7 @@ func (x *Xray) initConfig() {
 		}
 
 		apiPort := strconv.Itoa(x.database.Data.Settings.InternalPort)
-		content := strings.ReplaceAll(string(templateContent), `"{api-port}"`, apiPort)
+		content := strings.ReplaceAll(string(templateContent), "2401", apiPort)
 
 		if err = os.WriteFile(configPath, []byte(content), 0644); err != nil {
 			x.log.Fatal("xray: cannot save init config file", zap.Error(err))
@@ -143,7 +143,7 @@ func (x *Xray) LoadConfigs() string {
 
 func (x *Xray) SaveConfigs(data []byte) {
 	apiPort := strconv.Itoa(x.database.Data.Settings.InternalPort)
-	content := strings.ReplaceAll(string(data), `"{api-port}"`, apiPort)
+	content := strings.ReplaceAll(string(data), "2401", apiPort)
 
 	if err := os.WriteFile(configPath, []byte(content), 0644); err != nil {
 		x.log.Fatal("xray: cannot save init config file", zap.Error(err))
