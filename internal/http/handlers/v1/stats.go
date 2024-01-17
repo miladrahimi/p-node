@@ -8,10 +8,6 @@ import (
 
 func StatsShow(x *xray.Xray) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		stats, err := x.QueryStats()
-		if err != nil {
-			return err
-		}
-		return c.JSON(http.StatusOK, stats)
+		return c.JSON(http.StatusOK, x.QueryStats())
 	}
 }

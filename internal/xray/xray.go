@@ -124,21 +124,21 @@ func (x *Xray) connectGrpc() {
 }
 
 // QueryStats fetches the traffic stats from Xray core.
-func (x *Xray) QueryStats() ([]*stats.Stat, error) {
+func (x *Xray) QueryStats() []*stats.Stat {
 	client := stats.NewStatsServiceClient(x.connection)
 	qs, err := client.QueryStats(context.Background(), &stats.QueryStatsRequest{Reset_: true})
 	if err != nil {
-		return nil, err
+		x.log.Error("xray: cannot query stats", zap.Error(err))
 	}
-	return qs.GetStat(), nil
+	return qs.GetStat()
 }
 
-func (x *Xray) LoadConfigs() []byte {
+func (x *Xray) LoadConfigs() string {
 	content, err := os.ReadFile(configPath)
 	if err != nil {
 		x.log.Fatal("xray: cannot load config file", zap.Error(err))
 	}
-	return content
+	return string(content)
 }
 
 func (x *Xray) SaveConfigs(data []byte) {

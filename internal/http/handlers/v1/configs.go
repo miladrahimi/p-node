@@ -9,7 +9,8 @@ import (
 
 func ConfigsShow(x *xray.Xray) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		return c.JSON(http.StatusOK, x.LoadConfigs())
+		c.Response().Header().Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		return c.String(http.StatusOK, x.LoadConfigs())
 	}
 }
 
