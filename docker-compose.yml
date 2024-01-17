@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  app:
+    build:
+      context: .
+    image: ghcr.io/miladrahimi/xray-node:latest
+    restart: always
+    network_mode: host
+    volumes:
+      - ./configs/:/app/configs/
+      - ./storage/:/app/storage/
