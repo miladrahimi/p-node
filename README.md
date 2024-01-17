@@ -5,11 +5,11 @@
 ### Installation
 
 ```shell
-# Install dependencies
+# Install the requirements
 apt-get -y update && apt-get -y upgrade
 apt-get -y install make wget curl vim git openssl jq
 
-# Install docker
+# Install Docker
 wget -O install-docker.sh https://get.docker.com
 chmod +x install-docker.sh && ./install-docker.sh
 
