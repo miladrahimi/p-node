@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"github.com/go-playground/validator"
 	"github.com/labstack/gommon/random"
+	"github.com/miladrahimi/xray-manager/pkg/utils"
 	"go.uber.org/zap"
 	"os"
 	"sync"
-	"xray-node/internal/utils"
 )
 
 const Path = "storage/database.json"
@@ -17,12 +17,15 @@ type Data struct {
 }
 
 type Database struct {
-	Data *Data
-	log  *zap.Logger
-	lock sync.Mutex
+	Data   *Data
+	Locker sync.Mutex
+	log    *zap.Logger
 }
 
 func (d *Database) Init() {
+	d.Locker.Lock()
+	defer d.Locker.Unlock()
+
 	if !utils.FileExist(Path) {
 		d.initData()
 		d.Save()
@@ -42,9 +45,6 @@ func (d *Database) initData() {
 }
 
 func (d *Database) Load() {
-	d.lock.Lock()
-	defer d.lock.Unlock()
-
 	content, err := os.ReadFile(Path)
 	if err != nil {
 		d.log.Fatal("database: cannot load file", zap.String("file", Path), zap.Error(err))
@@ -68,9 +68,6 @@ func (d *Database) Save() {
 	if err != nil {
 		d.log.Fatal("database: cannot marshal data", zap.Error(err))
 	}
-
-	d.lock.Lock()
-	defer d.lock.Unlock()
 
 	if err = os.WriteFile(Path, content, 0755); err != nil {
 		d.log.Fatal("database: cannot save file", zap.String("file", Path), zap.Error(err))

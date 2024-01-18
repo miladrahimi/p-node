@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
+	"github.com/miladrahimi/xray-manager/pkg/xray"
 	"go.uber.org/zap"
 	"net/http"
 	"time"
@@ -15,7 +16,6 @@ import (
 	"xray-node/internal/http/handlers/v1"
 	"xray-node/internal/http/middleware"
 	"xray-node/internal/http/validator"
-	"xray-node/internal/xray"
 )
 
 type Server struct {
@@ -36,9 +36,7 @@ func (s *Server) Run() {
 	g2 := s.Engine.Group("/v1")
 	g2.Use(middleware.Authorize(s.database))
 
-	g2.GET("/stats", v1.StatsShow(s.xray))
-	g2.GET("/configs", v1.ConfigsShow(s.xray))
-	g2.POST("/configs", v1.ConfigsStore(s.xray))
+	g2.GET("/action", v1.Action(s.xray))
 
 	go func() {
 		address := fmt.Sprintf("0.0.0.0:%d", s.database.Data.Settings.HttpPort)

@@ -2,6 +2,8 @@ package app
 
 import (
 	"context"
+	"github.com/miladrahimi/xray-manager/pkg/logger"
+	"github.com/miladrahimi/xray-manager/pkg/xray"
 	"go.uber.org/zap"
 	"os"
 	"os/signal"
@@ -9,8 +11,6 @@ import (
 	"xray-node/internal/config"
 	"xray-node/internal/database"
 	"xray-node/internal/http/server"
-	"xray-node/internal/logger"
-	"xray-node/internal/xray"
 )
 
 // App integrates the modules to serve.
@@ -31,13 +31,13 @@ func New() (a *App, err error) {
 	if a.config.Init() != nil {
 		return nil, err
 	}
-	a.log = logger.New(a.config)
+	a.log = logger.New(a.config.Logger.Level, a.config.Logger.Format)
 	if a.log.Init() != nil {
 		return nil, err
 	}
 
 	a.database = database.New(a.log.Engine)
-	a.xray = xray.New(a.log.Engine, a.database, a.config)
+	a.xray = xray.New(a.log.Engine, config.XrayConfigPath, a.config.XrayPath())
 	a.httpServer = server.New(a.config, a.log.Engine, a.xray, a.database)
 
 	a.setupSignalListener()

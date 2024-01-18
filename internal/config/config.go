@@ -4,15 +4,21 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-playground/validator"
+	"github.com/miladrahimi/xray-manager/pkg/utils"
 	"os"
-	"xray-node/internal/utils"
+	"runtime"
 )
 
 const MainPath = "configs/main.json"
 const LocalPath = "configs/main.local.json"
 const AppName = "XrayNode"
 const AppVersion = "v1.0.0"
-const ShadowsocksMethod = "chacha20-ietf-poly1305"
+const XrayConfigPath = "storage/xray.json"
+
+var xrayBinaryPaths = map[string]string{
+	"darwin": "third_party/xray-macos-arm64/xray",
+	"linux":  "third_party/xray-linux-64/xray",
+}
 
 // Config is the root configuration.
 type Config struct {
@@ -47,6 +53,13 @@ func (c *Config) Init() (err error) {
 	}
 
 	return nil
+}
+
+func (c *Config) XrayPath() string {
+	if path, found := xrayBinaryPaths[runtime.GOOS]; found {
+		return path
+	}
+	return xrayBinaryPaths["linux"]
 }
 
 // New creates an instance of the Config.
