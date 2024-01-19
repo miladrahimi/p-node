@@ -25,10 +25,6 @@ type Config struct {
 		Level  string `json:"level"`
 		Format string `json:"format"`
 	} `json:"logger"`
-
-	Worker struct {
-		Interval int `json:"interval" validate:"required,min=10"`
-	} `json:"worker"`
 }
 
 func (c *Config) Init() (err error) {
