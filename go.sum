@@ -14,6 +14,8 @@ github.com/gabriel-vasile/mimetype v1.4.3 h1:in2uUcidCuFcDKtdcBxlR0rJ1+fsokWf+uq
 github.com/gabriel-vasile/mimetype v1.4.3/go.mod h1:d8uq/6HKRL6CGdk+aubisF/M5GcPfT7nKyLpA0lbSSk=
 github.com/ghodss/yaml v1.0.1-0.20220118164431-d8423dcdf344 h1:Arcl6UOIS/kgO2nW3A65HN+7CMjSDP/gofXL4CZt1V4=
 github.com/ghodss/yaml v1.0.1-0.20220118164431-d8423dcdf344/go.mod h1:GIjDIg/heH5DOkXY3YJ/wNhfHsQHoXGjl8G8amsYQ1I=
+github.com/go-playground/assert/v2 v2.2.0 h1:JvknZsQTYeFEAhQwI4qEt9cyV5ONwRHC+lYKSsYSR8s=
+github.com/go-playground/assert/v2 v2.2.0/go.mod h1:VDjEfimB/XKnb+ZQfWdccd7VUvScMdVu0Titje2rxJ4=
 github.com/go-playground/locales v0.14.1 h1:EWaQ/wswjilfKLTECiXz7Rh+3BjFhfDFKv/oXslEjJA=
 github.com/go-playground/locales v0.14.1/go.mod h1:hxrqLVvrK65+Rwrd5Fc6F2O76J/NuW9t0sjnWqG1slY=
 github.com/go-playground/universal-translator v0.18.1 h1:Bcnm0ZwsGyWbCzImXv+pAJnYK9S473LQFuzCbDbfSFY=
@@ -59,12 +61,8 @@ github.com/mattn/go-colorable v0.1.13/go.mod h1:7S9/ev0klgBDR4GtXTXX8a3vIGJpMovk
 github.com/mattn/go-isatty v0.0.16/go.mod h1:kYGgaQfpe5nmfYZH+SKPsOc2e4SrIfOl2e/yFXSvRLM=
 github.com/mattn/go-isatty v0.0.20 h1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWEY=
 github.com/mattn/go-isatty v0.0.20/go.mod h1:W+V8PltTTMOvKvAeJH7IuucS94S2C6jfK/D7dTCTo3Y=
-github.com/miladrahimi/xray-manager v0.0.0-20240118232421-7062cbe80710 h1:aY5i/4wKPtPyo5CkegzjDZstXSCXwP1+mCM9sBaUp7w=
-github.com/miladrahimi/xray-manager v0.0.0-20240118232421-7062cbe80710/go.mod h1:VPuslCHj+dIIuuppcwK0ujOJCHOlosi1W/Ahuhxn0aQ=
-github.com/miladrahimi/xray-manager v0.0.0-20240118233313-cc3536f6d955 h1:cc//vfzmCEeO6BSVYfq4aFeYfIkUY7LQxBfiif8H084=
-github.com/miladrahimi/xray-manager v0.0.0-20240118233313-cc3536f6d955/go.mod h1:VPuslCHj+dIIuuppcwK0ujOJCHOlosi1W/Ahuhxn0aQ=
-github.com/miladrahimi/xray-manager v0.0.0-20240119143151-588fc3f7a502 h1:wPNipmHen74pF8Gg14sem86eyAMhDL4Y520XojpIIvA=
-github.com/miladrahimi/xray-manager v0.0.0-20240119143151-588fc3f7a502/go.mod h1:QxxJW88mg10LwoUyVsp7gqy12mYXMBo61zUA/i71/gs=
+github.com/miladrahimi/xray-manager v0.0.0-20240119153138-7059053acdc9 h1:MuxZsAawGCsTGK2gsRr2wLC6wFuLfSXcTWMLBSCa7Lw=
+github.com/miladrahimi/xray-manager v0.0.0-20240119153138-7059053acdc9/go.mod h1:QxxJW88mg10LwoUyVsp7gqy12mYXMBo61zUA/i71/gs=
 github.com/onsi/ginkgo/v2 v2.13.2 h1:Bi2gGVkfn6gQcjNjZJVO8Gf0FHzMPf2phUei9tejVMs=
 github.com/onsi/ginkgo/v2 v2.13.2/go.mod h1:XStQ8QcGwLyF4HdfcZB8SFOS/MWCgDuXMSBe6zrvLgM=
 github.com/pelletier/go-toml v1.9.5 h1:4yBQzkHv+7BHq2PQUZF3Mx0IYxG7LsP222s7Agd3ve8=
