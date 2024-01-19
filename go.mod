@@ -6,14 +6,16 @@ require (
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/labstack/gommon v0.4.2
-	github.com/miladrahimi/xray-manager v0.0.0-20240118233313-cc3536f6d955
+	github.com/miladrahimi/xray-manager v0.0.0-20240119143151-588fc3f7a502
 	github.com/spf13/cobra v1.8.0
 	go.uber.org/zap v1.26.0
 )
 
 require (
+	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
+	github.com/go-playground/validator/v10 v10.17.0 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/uuid v1.5.0 // indirect
