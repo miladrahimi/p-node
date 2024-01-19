@@ -9,21 +9,21 @@ import (
 	"os/signal"
 	"syscall"
 	"xray-node/internal/config"
+	"xray-node/internal/coordinator"
 	"xray-node/internal/database"
 	"xray-node/internal/http/server"
 )
 
-// App integrates the modules to serve.
 type App struct {
-	context    context.Context
-	config     *config.Config
-	log        *logger.Logger
-	httpServer *server.Server
-	xray       *xray.Xray
-	database   *database.Database
+	context     context.Context
+	config      *config.Config
+	log         *logger.Logger
+	httpServer  *server.Server
+	xray        *xray.Xray
+	database    *database.Database
+	coordinator *coordinator.Coordinator
 }
 
-// New creates an instance of the application with dependencies injected.
 func New() (a *App, err error) {
 	a = &App{}
 
@@ -36,8 +36,9 @@ func New() (a *App, err error) {
 		return nil, err
 	}
 
+	a.xray = xray.New(a.log.Engine, a.config.XrayConfigPath(), a.config.XrayBinaryPath())
 	a.database = database.New(a.log.Engine)
-	a.xray = xray.New(a.log.Engine, config.XrayConfigPath, a.config.XrayPath())
+	a.coordinator = coordinator.New(a.config, a.log.Engine, a.database, a.xray)
 	a.httpServer = server.New(a.config, a.log.Engine, a.xray, a.database)
 
 	a.setupSignalListener()
@@ -45,19 +46,17 @@ func New() (a *App, err error) {
 	return a, nil
 }
 
-// Boot initializes application modules
 func (a *App) Boot() {
-	a.database.Init()
 	a.xray.Run()
+	a.database.Init()
+	a.coordinator.Run()
 	a.httpServer.Run()
 }
 
-// setupSignalListener sets up a listener to signals from os.
 func (a *App) setupSignalListener() {
 	var cancel context.CancelFunc
 	a.context, cancel = context.WithCancel(context.Background())
 
-	// Listen to SIGTERM
 	go func() {
 		signalChannel := make(chan os.Signal, 2)
 		signal.Notify(signalChannel, os.Interrupt, syscall.SIGTERM)
@@ -68,7 +67,6 @@ func (a *App) setupSignalListener() {
 		cancel()
 	}()
 
-	// Listen to SIGHUP
 	go func() {
 		signalChannel := make(chan os.Signal, 2)
 		signal.Notify(signalChannel, syscall.SIGHUP)
@@ -81,12 +79,10 @@ func (a *App) setupSignalListener() {
 	}()
 }
 
-// Wait avoid dying app and shut it down gracefully on exit signals.
 func (a *App) Wait() {
 	<-a.context.Done()
 }
 
-// Shutdown closes all open resources and processes gracefully.
 func (a *App) Shutdown() {
 	if a.httpServer != nil {
 		a.httpServer.Shutdown()

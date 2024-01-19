@@ -23,6 +23,7 @@ func Action(x *xray.Xray) echo.HandlerFunc {
 		}
 
 		stats := x.QueryStats()
+		config.UpdateApiInbound(x.Config().ApiInbound().Port)
 		x.SetConfig(&config)
 		go x.Restart()
 

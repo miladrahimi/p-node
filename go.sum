@@ -55,12 +55,10 @@ github.com/mattn/go-colorable v0.1.13/go.mod h1:7S9/ev0klgBDR4GtXTXX8a3vIGJpMovk
 github.com/mattn/go-isatty v0.0.16/go.mod h1:kYGgaQfpe5nmfYZH+SKPsOc2e4SrIfOl2e/yFXSvRLM=
 github.com/mattn/go-isatty v0.0.20 h1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWEY=
 github.com/mattn/go-isatty v0.0.20/go.mod h1:W+V8PltTTMOvKvAeJH7IuucS94S2C6jfK/D7dTCTo3Y=
-github.com/miladrahimi/xray-manager v0.0.0-20240118174613-ba3e5ab9e992 h1:0VhtbUs0yKibxjfUxH+LXYHkH3JKTalMXrhUoBlDgXA=
-github.com/miladrahimi/xray-manager v0.0.0-20240118174613-ba3e5ab9e992/go.mod h1:rlL2JxTwZNt/RsM4WFyEJRvLyv40V2fruWc8d29oDys=
-github.com/miladrahimi/xray-manager v0.0.0-20240118181927-6697acbed9ca h1:XnNSXx3i0/cR28zd7Xztych+W7DN6v10mARMKx68lAY=
-github.com/miladrahimi/xray-manager v0.0.0-20240118181927-6697acbed9ca/go.mod h1:VPuslCHj+dIIuuppcwK0ujOJCHOlosi1W/Ahuhxn0aQ=
 github.com/miladrahimi/xray-manager v0.0.0-20240118232421-7062cbe80710 h1:aY5i/4wKPtPyo5CkegzjDZstXSCXwP1+mCM9sBaUp7w=
 github.com/miladrahimi/xray-manager v0.0.0-20240118232421-7062cbe80710/go.mod h1:VPuslCHj+dIIuuppcwK0ujOJCHOlosi1W/Ahuhxn0aQ=
+github.com/miladrahimi/xray-manager v0.0.0-20240118233313-cc3536f6d955 h1:cc//vfzmCEeO6BSVYfq4aFeYfIkUY7LQxBfiif8H084=
+github.com/miladrahimi/xray-manager v0.0.0-20240118233313-cc3536f6d955/go.mod h1:VPuslCHj+dIIuuppcwK0ujOJCHOlosi1W/Ahuhxn0aQ=
 github.com/onsi/ginkgo/v2 v2.13.2 h1:Bi2gGVkfn6gQcjNjZJVO8Gf0FHzMPf2phUei9tejVMs=
 github.com/onsi/ginkgo/v2 v2.13.2/go.mod h1:XStQ8QcGwLyF4HdfcZB8SFOS/MWCgDuXMSBe6zrvLgM=
 github.com/pelletier/go-toml v1.9.5 h1:4yBQzkHv+7BHq2PQUZF3Mx0IYxG7LsP222s7Agd3ve8=

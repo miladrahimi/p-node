@@ -13,14 +13,13 @@ const MainPath = "configs/main.json"
 const LocalPath = "configs/main.local.json"
 const AppName = "XrayNode"
 const AppVersion = "v1.0.0"
-const XrayConfigPath = "storage/xray.json"
 
+var xrayConfigPath = "storage/xray.json"
 var xrayBinaryPaths = map[string]string{
 	"darwin": "third_party/xray-macos-arm64/xray",
 	"linux":  "third_party/xray-linux-64/xray",
 }
 
-// Config is the root configuration.
 type Config struct {
 	Logger struct {
 		Level  string `json:"level"`
@@ -55,14 +54,17 @@ func (c *Config) Init() (err error) {
 	return nil
 }
 
-func (c *Config) XrayPath() string {
+func (c *Config) XrayBinaryPath() string {
 	if path, found := xrayBinaryPaths[runtime.GOOS]; found {
 		return path
 	}
 	return xrayBinaryPaths["linux"]
 }
 
-// New creates an instance of the Config.
+func (c *Config) XrayConfigPath() string {
+	return xrayConfigPath
+}
+
 func New() *Config {
 	return &Config{}
 }

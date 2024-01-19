@@ -7,7 +7,6 @@ import (
 	"github.com/miladrahimi/xray-manager/pkg/utils"
 	"go.uber.org/zap"
 	"os"
-	"sync"
 )
 
 const Path = "storage/database.json"
@@ -17,31 +16,15 @@ type Data struct {
 }
 
 type Database struct {
-	Data   *Data
-	Locker sync.Mutex
-	log    *zap.Logger
+	Data *Data
+	log  *zap.Logger
 }
 
 func (d *Database) Init() {
-	d.Locker.Lock()
-	defer d.Locker.Unlock()
-
 	if !utils.FileExist(Path) {
-		d.initData()
 		d.Save()
 	}
 	d.Load()
-}
-
-func (d *Database) initData() {
-	var err error
-	if d.Data.Settings.InternalPort, err = utils.FreePort(); err != nil {
-		d.log.Fatal("database: cannot init Settings.InternalPort", zap.Error(err))
-	}
-	if d.Data.Settings.HttpPort, err = utils.FreePort(); err != nil {
-		d.log.Fatal("database: cannot init Settings.HttpPort", zap.Error(err))
-	}
-	d.Data.Settings.HttpToken = random.String(16)
 }
 
 func (d *Database) Load() {
@@ -78,7 +61,11 @@ func New(l *zap.Logger) *Database {
 	return &Database{
 		log: l,
 		Data: &Data{
-			Settings: &Settings{},
+			Settings: &Settings{
+				XrayApiPort: 3411,
+				HttpPort:    1826,
+				HttpToken:   random.String(16),
+			},
 		},
 	}
 }
