@@ -1,6 +1,7 @@
 package coordinator
 
 import (
+	"github.com/miladrahimi/xray-manager/pkg/logger"
 	"github.com/miladrahimi/xray-manager/pkg/utils"
 	"github.com/miladrahimi/xray-manager/pkg/xray"
 	"go.uber.org/zap"
@@ -9,7 +10,7 @@ import (
 )
 
 type Coordinator struct {
-	log      *zap.Logger
+	log      *logger.Logger
 	config   *config.Config
 	database *database.Database
 	xray     *xray.Xray
@@ -31,6 +32,6 @@ func (c *Coordinator) initDatabase() {
 	c.database.Save()
 }
 
-func New(c *config.Config, l *zap.Logger, d *database.Database, x *xray.Xray) *Coordinator {
+func New(c *config.Config, l *logger.Logger, d *database.Database, x *xray.Xray) *Coordinator {
 	return &Coordinator{config: c, log: l, database: d, xray: x}
 }

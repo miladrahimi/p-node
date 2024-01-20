@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
+	"github.com/miladrahimi/xray-manager/pkg/logger"
 	"github.com/miladrahimi/xray-manager/pkg/routing/middleware"
 	"github.com/miladrahimi/xray-manager/pkg/routing/validator"
 	"github.com/miladrahimi/xray-manager/pkg/xray"
@@ -21,7 +22,7 @@ import (
 type Server struct {
 	Engine   *echo.Echo
 	config   *config.Config
-	log      *zap.Logger
+	log      *logger.Logger
 	xray     *xray.Xray
 	database *database.Database
 }
@@ -60,7 +61,7 @@ func (s *Server) Shutdown() {
 }
 
 // New creates a new instance of HTTP Server.
-func New(config *config.Config, l *zap.Logger, x *xray.Xray, d *database.Database) *Server {
+func New(config *config.Config, l *logger.Logger, x *xray.Xray, d *database.Database) *Server {
 	e := echo.New()
 	e.HideBanner = true
 	e.Validator = validator.New()

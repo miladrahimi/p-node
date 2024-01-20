@@ -63,6 +63,12 @@ github.com/mattn/go-isatty v0.0.20 h1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWE
 github.com/mattn/go-isatty v0.0.20/go.mod h1:W+V8PltTTMOvKvAeJH7IuucS94S2C6jfK/D7dTCTo3Y=
 github.com/miladrahimi/xray-manager v0.0.0-20240119153138-7059053acdc9 h1:MuxZsAawGCsTGK2gsRr2wLC6wFuLfSXcTWMLBSCa7Lw=
 github.com/miladrahimi/xray-manager v0.0.0-20240119153138-7059053acdc9/go.mod h1:QxxJW88mg10LwoUyVsp7gqy12mYXMBo61zUA/i71/gs=
+github.com/miladrahimi/xray-manager v0.0.0-20240120192833-57a2462abbd8 h1:9C+2kTVJFY/Mjc+hya9FtF+T89SDHpCnEmgXaxT3/SI=
+github.com/miladrahimi/xray-manager v0.0.0-20240120192833-57a2462abbd8/go.mod h1:QxxJW88mg10LwoUyVsp7gqy12mYXMBo61zUA/i71/gs=
+github.com/miladrahimi/xray-manager v0.0.0-20240120203913-7c567156aa83 h1:QqnaEDIuyVktaSzguWQw5xHZRueEq/8IDEFkcW4dcc4=
+github.com/miladrahimi/xray-manager v0.0.0-20240120203913-7c567156aa83/go.mod h1:QxxJW88mg10LwoUyVsp7gqy12mYXMBo61zUA/i71/gs=
+github.com/miladrahimi/xray-manager v0.0.0-20240120210519-c8be1221025d h1:AxGm+BKWata65Q8rUoffEu2BFo/Svvreg31LknRAJcM=
+github.com/miladrahimi/xray-manager v0.0.0-20240120210519-c8be1221025d/go.mod h1:QxxJW88mg10LwoUyVsp7gqy12mYXMBo61zUA/i71/gs=
 github.com/onsi/ginkgo/v2 v2.13.2 h1:Bi2gGVkfn6gQcjNjZJVO8Gf0FHzMPf2phUei9tejVMs=
 github.com/onsi/ginkgo/v2 v2.13.2/go.mod h1:XStQ8QcGwLyF4HdfcZB8SFOS/MWCgDuXMSBe6zrvLgM=
 github.com/pelletier/go-toml v1.9.5 h1:4yBQzkHv+7BHq2PQUZF3Mx0IYxG7LsP222s7Agd3ve8=

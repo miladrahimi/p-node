@@ -31,15 +31,15 @@ func New() (a *App, err error) {
 	if a.config.Init() != nil {
 		return nil, err
 	}
-	a.log = logger.New(a.config.Logger.Level, a.config.Logger.Format)
+	a.log = logger.New(a.config.Logger.Level, a.config.Logger.Format, a.ShutdownModules)
 	if a.log.Init() != nil {
 		return nil, err
 	}
 
-	a.xray = xray.New(a.log.Engine, a.config.XrayConfigPath(), a.config.XrayBinaryPath())
-	a.database = database.New(a.log.Engine)
-	a.coordinator = coordinator.New(a.config, a.log.Engine, a.database, a.xray)
-	a.httpServer = server.New(a.config, a.log.Engine, a.xray, a.database)
+	a.xray = xray.New(a.log, a.config.XrayConfigPath(), a.config.XrayBinaryPath())
+	a.database = database.New(a.log)
+	a.coordinator = coordinator.New(a.config, a.log, a.database, a.xray)
+	a.httpServer = server.New(a.config, a.log, a.xray, a.database)
 
 	a.setupSignalListener()
 
@@ -83,13 +83,19 @@ func (a *App) Wait() {
 	<-a.context.Done()
 }
 
-func (a *App) Shutdown() {
+func (a *App) ShutdownModules() {
+	a.log.Info("app: shutting down modules...")
 	if a.httpServer != nil {
 		a.httpServer.Shutdown()
 	}
 	if a.xray != nil {
 		a.xray.Shutdown()
 	}
+}
+
+func (a *App) Shutdown() {
+	a.log.Info("app: shutting down...")
+	a.ShutdownModules()
 	if a.log != nil {
 		a.log.Shutdown()
 	}
