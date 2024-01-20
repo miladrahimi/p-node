@@ -69,6 +69,10 @@ github.com/miladrahimi/xray-manager v0.0.0-20240120203913-7c567156aa83 h1:QqnaED
 github.com/miladrahimi/xray-manager v0.0.0-20240120203913-7c567156aa83/go.mod h1:QxxJW88mg10LwoUyVsp7gqy12mYXMBo61zUA/i71/gs=
 github.com/miladrahimi/xray-manager v0.0.0-20240120210519-c8be1221025d h1:AxGm+BKWata65Q8rUoffEu2BFo/Svvreg31LknRAJcM=
 github.com/miladrahimi/xray-manager v0.0.0-20240120210519-c8be1221025d/go.mod h1:QxxJW88mg10LwoUyVsp7gqy12mYXMBo61zUA/i71/gs=
+github.com/miladrahimi/xray-manager v0.0.0-20240120223725-39545ef572d7 h1:nc4oSrCgoSHIc1LLFGTRSuv0hic/4RwwIjjUrBYJawU=
+github.com/miladrahimi/xray-manager v0.0.0-20240120223725-39545ef572d7/go.mod h1:QxxJW88mg10LwoUyVsp7gqy12mYXMBo61zUA/i71/gs=
+github.com/miladrahimi/xray-manager v0.0.0-20240120231413-2a634e3bc819 h1:cz6KKISlLDXS5lZpxHx4LsXZlYXGQy24JAvIaIub2hY=
+github.com/miladrahimi/xray-manager v0.0.0-20240120231413-2a634e3bc819/go.mod h1:QxxJW88mg10LwoUyVsp7gqy12mYXMBo61zUA/i71/gs=
 github.com/onsi/ginkgo/v2 v2.13.2 h1:Bi2gGVkfn6gQcjNjZJVO8Gf0FHzMPf2phUei9tejVMs=
 github.com/onsi/ginkgo/v2 v2.13.2/go.mod h1:XStQ8QcGwLyF4HdfcZB8SFOS/MWCgDuXMSBe6zrvLgM=
 github.com/pelletier/go-toml v1.9.5 h1:4yBQzkHv+7BHq2PQUZF3Mx0IYxG7LsP222s7Agd3ve8=
