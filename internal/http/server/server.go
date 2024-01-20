@@ -20,30 +20,30 @@ import (
 )
 
 type Server struct {
-	Engine   *echo.Echo
+	engine   *echo.Echo
 	config   *config.Config
-	log      *logger.Logger
 	xray     *xray.Xray
 	database *database.Database
+	l        *logger.Logger
 }
 
 // Run defines the required HTTP routes and starts the HTTP Server.
 func (s *Server) Run() {
-	s.Engine.Use(echoMiddleware.CORS())
-	s.Engine.Use(middleware.Logger(s.log))
+	s.engine.Use(echoMiddleware.CORS())
+	s.engine.Use(middleware.Logger(s.l))
 
-	s.Engine.GET("/", handlers.HomeShow())
+	s.engine.GET("/", handlers.HomeShow())
 
-	g2 := s.Engine.Group("/v1")
+	g2 := s.engine.Group("/v1")
 	g2.Use(middleware.Authorize(s.database.Data.Settings.HttpToken))
 
 	g2.GET("/stats", v1.StatsShow(s.xray))
 	g2.POST("/configs", v1.ConfigsStore(s.xray))
 
 	go func() {
-		address := fmt.Sprintf("0.0.0.0:%d", s.database.Data.Settings.HttpPort)
-		if err := s.Engine.Start(address); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			s.log.Fatal("http server: failed to start", zap.String("address", address), zap.Error(err))
+		address := fmt.Sprintf("%s:%d", "0.0.0.0", s.database.Data.Settings.HttpPort)
+		if err := s.engine.Start(address); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			s.l.Fatal("http server: cannot start", zap.String("address", address), zap.Error(err))
 		}
 	}()
 }
@@ -53,10 +53,10 @@ func (s *Server) Shutdown() {
 	c, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	if err := s.Engine.Shutdown(c); err != nil {
-		s.log.Error("http server: failed to close", zap.Error(err))
+	if err := s.engine.Shutdown(c); err != nil {
+		s.l.Error("http server: cannot close", zap.Error(err))
 	} else {
-		s.log.Debug("http server: closed successfully")
+		s.l.Debug("http server: closed successfully")
 	}
 }
 
@@ -66,5 +66,5 @@ func New(config *config.Config, l *logger.Logger, x *xray.Xray, d *database.Data
 	e.HideBanner = true
 	e.Validator = validator.New()
 
-	return &Server{Engine: e, config: config, log: l, xray: x, database: d}
+	return &Server{engine: e, config: config, l: l, xray: x, database: d}
 }

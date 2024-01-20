@@ -10,7 +10,7 @@ import (
 )
 
 type Coordinator struct {
-	log      *logger.Logger
+	l        *logger.Logger
 	config   *config.Config
 	database *database.Database
 	xray     *xray.Xray
@@ -25,7 +25,7 @@ func (c *Coordinator) initDatabase() {
 	if c.database.Data.Settings.HttpPort == 1826 {
 		c.database.Data.Settings.HttpPort, err = utils.FreePort()
 		if err != nil {
-			c.log.Fatal("coordinator: cannot find free http port", zap.Error(err))
+			c.l.Fatal("coordinator: cannot find free http port", zap.Error(err))
 		}
 	}
 	c.database.Data.Settings.XrayApiPort = c.xray.Config().ApiInbound().Port
@@ -33,5 +33,5 @@ func (c *Coordinator) initDatabase() {
 }
 
 func New(c *config.Config, l *logger.Logger, d *database.Database, x *xray.Xray) *Coordinator {
-	return &Coordinator{config: c, log: l, database: d, xray: x}
+	return &Coordinator{config: c, l: l, database: d, xray: x}
 }

@@ -18,7 +18,7 @@ type Data struct {
 
 type Database struct {
 	Data *Data
-	log  *logger.Logger
+	l    *logger.Logger
 }
 
 func (d *Database) Init() {
@@ -31,16 +31,16 @@ func (d *Database) Init() {
 func (d *Database) Load() {
 	content, err := os.ReadFile(Path)
 	if err != nil {
-		d.log.Fatal("database: cannot load file", zap.String("file", Path), zap.Error(err))
+		d.l.Fatal("database: cannot load file", zap.String("file", Path), zap.Error(err))
 	}
 
 	err = json.Unmarshal(content, d.Data)
 	if err != nil {
-		d.log.Fatal("database: cannot unmarshall data", zap.Error(err))
+		d.l.Fatal("database: cannot unmarshall data", zap.Error(err))
 	}
 
 	if err = validator.New().Struct(d); err != nil {
-		d.log.Fatal("database: cannot validate data", zap.Error(err))
+		d.l.Fatal("database: cannot validate data", zap.Error(err))
 	}
 }
 
@@ -50,17 +50,17 @@ func (d *Database) Save() {
 	}()
 	content, err := json.Marshal(d.Data)
 	if err != nil {
-		d.log.Fatal("database: cannot marshal data", zap.Error(err))
+		d.l.Fatal("database: cannot marshal data", zap.Error(err))
 	}
 
 	if err = os.WriteFile(Path, content, 0755); err != nil {
-		d.log.Fatal("database: cannot save file", zap.String("file", Path), zap.Error(err))
+		d.l.Fatal("database: cannot save file", zap.String("file", Path), zap.Error(err))
 	}
 }
 
 func New(l *logger.Logger) *Database {
 	return &Database{
-		log: l,
+		l: l,
 		Data: &Data{
 			Settings: &Settings{
 				XrayApiPort: 3411,

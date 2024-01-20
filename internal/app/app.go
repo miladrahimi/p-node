@@ -18,7 +18,7 @@ type App struct {
 	context     context.Context
 	config      *config.Config
 	log         *logger.Logger
-	httpServer  *server.Server
+	server      *server.Server
 	xray        *xray.Xray
 	database    *database.Database
 	coordinator *coordinator.Coordinator
@@ -39,7 +39,7 @@ func New() (a *App, err error) {
 	a.xray = xray.New(a.log, a.config.XrayConfigPath(), a.config.XrayBinaryPath())
 	a.database = database.New(a.log)
 	a.coordinator = coordinator.New(a.config, a.log, a.database, a.xray)
-	a.httpServer = server.New(a.config, a.log, a.xray, a.database)
+	a.server = server.New(a.config, a.log, a.xray, a.database)
 
 	a.setupSignalListener()
 
@@ -50,7 +50,7 @@ func (a *App) Boot() {
 	a.xray.Run()
 	a.database.Init()
 	a.coordinator.Run()
-	a.httpServer.Run()
+	a.server.Run()
 }
 
 func (a *App) setupSignalListener() {
@@ -85,8 +85,8 @@ func (a *App) Wait() {
 
 func (a *App) ShutdownModules() {
 	a.log.Info("app: shutting down modules...")
-	if a.httpServer != nil {
-		a.httpServer.Shutdown()
+	if a.server != nil {
+		a.server.Shutdown()
 	}
 	if a.xray != nil {
 		a.xray.Shutdown()

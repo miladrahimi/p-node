@@ -41,7 +41,7 @@ func ConfigsStore(x *xray.Xray) echo.HandlerFunc {
 		x.Restart()
 
 		return c.JSON(http.StatusOK, map[string]string{
-			"message": "queued",
+			"message": "The configs stored successfully.",
 		})
 	}
 }
