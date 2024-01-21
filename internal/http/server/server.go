@@ -35,7 +35,9 @@ func (s *Server) Run() {
 	s.engine.GET("/", handlers.HomeShow())
 
 	g2 := s.engine.Group("/v1")
-	g2.Use(middleware.Authorize(s.database.Data.Settings.HttpToken))
+	g2.Use(middleware.Authorize(func() string {
+		return s.database.Data.Settings.HttpToken
+	}))
 
 	g2.GET("/stats", v1.StatsShow(s.xray))
 	g2.POST("/configs", v1.ConfigsStore(s.xray))
