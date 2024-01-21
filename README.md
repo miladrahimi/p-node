@@ -34,3 +34,7 @@ git pull
 docker compose down
 docker compose up -d
 ```
+
+## Link
+
+* https://github.com/miladrahimi/xray-manager
