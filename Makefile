@@ -1,4 +1,4 @@
-.PHONY: install run build settings fresh
+.PHONY: install run build info fresh
 
 install:
 	./third_party/install-xray.sh
@@ -9,7 +9,7 @@ run: install
 build: install
 	go build main.go -o ssm
 
-settings:
+info:
 	@json_file="$(CURDIR)/storage/database.json"; \
 	http_port=$$(jq -r '.settings.http_port' "$$json_file"); \
 	http_token=$$(jq -r '.settings.http_token' "$$json_file"); \
