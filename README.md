@@ -28,11 +28,8 @@ make info
 
 ### Update
 
-```shell
-docker compose pull
-git pull
-docker compose down
-docker compose up -d
+``` shell
+make update
 ```
 
 ## Link
