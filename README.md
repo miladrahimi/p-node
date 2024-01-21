@@ -22,8 +22,8 @@ git clone https://github.com/miladrahimi/xray-node.git
 cd xray-node
 docker compose up -d
 
-# Show Settings
-make settings
+# Show Information
+make info
 ```
 
 ### Update
