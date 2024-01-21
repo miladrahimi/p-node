@@ -41,7 +41,7 @@ func ConfigsStore(x *xray.Xray) echo.HandlerFunc {
 
 		config.UpdateApiInbound(x.Config().ApiInbound().Port)
 		x.SetConfig(&config)
-		x.Restart()
+		go x.Restart()
 
 		return c.JSON(http.StatusOK, map[string]string{
 			"message": "The configs stored successfully.",
