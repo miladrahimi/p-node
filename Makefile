@@ -1,4 +1,4 @@
-.PHONY: setup run build info fresh
+.PHONY: setup run build info fresh update
 
 setup:
 	./third_party/install-xray-mac.sh
@@ -20,3 +20,9 @@ fresh:
 	rm storage/database.json
 	rm storage/xray.json
 	docker compose restart
+
+update:
+	docker compose pull
+	git pull
+	docker compose down
+	docker compose up -d
