@@ -1,12 +1,12 @@
-.PHONY: install run build info fresh
+.PHONY: setup run build info fresh
 
-install:
-	./third_party/install-xray.sh
+setup:
+	./third_party/install-xray-mac.sh
 
-run: install
+run:
 	go run main.go start
 
-build: install
+build:
 	go build main.go -o ssm
 
 info:
