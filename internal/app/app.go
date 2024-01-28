@@ -36,10 +36,14 @@ func New() (a *App, err error) {
 		return nil, err
 	}
 
+	a.log.Info("app: logger and config initialized successfully")
+
 	a.xray = xray.New(a.log, a.config.XrayConfigPath(), a.config.XrayBinaryPath())
 	a.database = database.New(a.log)
 	a.coordinator = coordinator.New(a.config, a.log, a.database, a.xray)
 	a.server = server.New(a.config, a.log, a.xray, a.database)
+
+	a.log.Info("app: modules initialized successfully")
 
 	a.setupSignalListener()
 
@@ -51,6 +55,7 @@ func (a *App) Boot() {
 	a.database.Init()
 	a.coordinator.Run()
 	a.server.Run()
+	a.log.Info("app: modules ran successfully")
 }
 
 func (a *App) setupSignalListener() {
@@ -65,17 +70,6 @@ func (a *App) setupSignalListener() {
 		a.log.Engine.Info("app: system call", zap.String("signal", s.String()))
 
 		cancel()
-	}()
-
-	go func() {
-		signalChannel := make(chan os.Signal, 2)
-		signal.Notify(signalChannel, syscall.SIGHUP)
-
-		for {
-			s := <-signalChannel
-			a.log.Engine.Info("app: system call", zap.String("signal", s.String()))
-			a.xray.Restart()
-		}
 	}()
 }
 

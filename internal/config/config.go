@@ -12,7 +12,7 @@ import (
 const MainPath = "configs/main.json"
 const LocalPath = "configs/main.local.json"
 const AppName = "XrayNode"
-const AppVersion = "v1.0.0"
+const AppVersion = "v1.1.0"
 
 var xrayConfigPath = "storage/xray.json"
 var xrayBinaryPaths = map[string]string{
