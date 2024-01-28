@@ -34,6 +34,6 @@ make info
 make update
 ```
 
-## Link
+## Links
 
 * https://github.com/miladrahimi/xray-manager
