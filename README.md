@@ -23,9 +23,13 @@ chmod +x bbr.sh && bash bbr.sh
 git clone https://github.com/miladrahimi/xray-node.git
 cd xray-node
 docker compose up -d
+```
 
+```shell
 # Show Information
 make info
+# HTTP Port: 38816
+# HTTP Token: boKNxIswqjXJ2Sqo
 ```
 
 ### Update
