@@ -26,10 +26,8 @@ docker compose up -d
 ```
 
 ```shell
-# Show Information
+# Show Information required for Xray Manager
 make info
-# HTTP Port: 38816
-# HTTP Token: boKNxIswqjXJ2Sqo
 ```
 
 ### Update
