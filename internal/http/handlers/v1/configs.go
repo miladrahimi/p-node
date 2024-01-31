@@ -21,7 +21,7 @@ func ConfigsStore(x *xray.Xray) echo.HandlerFunc {
 			})
 		}
 
-		config.UpdateApiInbound(x.Config().ApiInbound().Port)
+		config.ApiInbound().Port = x.Config().ApiInbound().Port
 		x.SetConfig(&config)
 		go x.Restart()
 
