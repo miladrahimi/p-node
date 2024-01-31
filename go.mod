@@ -6,7 +6,7 @@ require (
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/labstack/gommon v0.4.2
-	github.com/miladrahimi/xray-manager v0.0.0-20240131094848-089891af665d
+	github.com/miladrahimi/xray-manager v0.0.0-20240131115201-d87eefb5a593
 	github.com/spf13/cobra v1.8.0
 	go.uber.org/zap v1.26.0
 )
