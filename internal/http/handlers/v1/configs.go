@@ -21,9 +21,6 @@ func ConfigsStore(x *xray.Xray) echo.HandlerFunc {
 			})
 		}
 
-		x.Config().Locker.Lock()
-		defer x.Config().Locker.Unlock()
-
 		config.UpdateApiInbound(x.Config().ApiInbound().Port)
 		x.SetConfig(&config)
 		go x.Restart()
