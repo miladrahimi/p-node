@@ -23,8 +23,10 @@ chmod +x bbr.sh && bash bbr.sh
 git clone https://github.com/miladrahimi/xray-node.git
 cd xray-node
 docker compose up -d
+```
 
-# Show Information
+```shell
+# Show Information required for Xray Manager
 make info
 ```
 
@@ -32,6 +34,7 @@ make info
 
 ``` shell
 make update
+# Execute this each time a new version of Xray Node is released.
 ```
 
 ## Links
