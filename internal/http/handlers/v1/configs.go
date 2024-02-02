@@ -11,19 +11,17 @@ func ConfigsStore(x *xray.Xray) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var config xray.Config
 		if err := c.Bind(&config); err != nil {
-			return c.JSON(http.StatusBadRequest, map[string]string{
+			return c.JSON(http.StatusUnprocessableEntity, map[string]string{
 				"message": "Cannot parse the request body.",
 			})
 		}
 		if err := config.Validate(); err != nil {
-			return c.JSON(http.StatusBadRequest, map[string]string{
+			return c.JSON(http.StatusUnprocessableEntity, map[string]string{
 				"message": fmt.Sprintf("Validation error: %v", err.Error()),
 			})
 		}
 
-		if config.ApiInbound() != nil && x.Config().ApiInbound() != nil {
-			config.ApiInbound().Port = x.Config().ApiInbound().Port
-		}
+		config.ApiInbound().Port = x.Config().ApiInbound().Port
 
 		x.SetConfig(&config)
 		go x.Restart()
