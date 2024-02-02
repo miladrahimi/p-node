@@ -3,6 +3,7 @@ package v1
 import (
 	"fmt"
 	"github.com/labstack/echo/v4"
+	"github.com/miladrahimi/xray-manager/pkg/utils"
 	"github.com/miladrahimi/xray-manager/pkg/xray"
 	"net/http"
 )
@@ -22,6 +23,15 @@ func ConfigsStore(x *xray.Xray) echo.HandlerFunc {
 		}
 
 		config.ApiInbound().Port = x.Config().ApiInbound().Port
+		if config.DirectInbound() != nil {
+			if x.Config().DirectInbound() == nil || config.DirectInbound().Port != x.Config().DirectInbound().Port {
+				if !utils.PortFree(config.DirectInbound().Port) {
+					return c.JSON(http.StatusUnprocessableEntity, map[string]string{
+						"message": "The direct inbound port is already in use",
+					})
+				}
+			}
+		}
 
 		x.SetConfig(&config)
 		go x.Restart()
