@@ -34,7 +34,7 @@ make info
 
 ``` shell
 make update
-# Execute this each time a new version of Xray Node is released.
+# Execute this each time a new version is released.
 ```
 
 ## Links
