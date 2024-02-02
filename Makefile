@@ -16,13 +16,13 @@ info:
 	@cat "$(CURDIR)/storage/database.json" && echo ""
 
 fresh:
-	rm storage/database.json
-	rm storage/xray.json
+	rm -f storage/database.json
+	rm -f storage/xray.json
 	docker compose restart
 
 update:
 	git pull
 	docker compose pull
 	docker compose down
-	rm ./storage/xray.json
+	rm -f ./storage/xray.json
 	docker compose up -d
