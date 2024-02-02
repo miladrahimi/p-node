@@ -9,19 +9,17 @@ import (
 	"os/signal"
 	"syscall"
 	"xray-node/internal/config"
-	"xray-node/internal/coordinator"
 	"xray-node/internal/database"
 	"xray-node/internal/http/server"
 )
 
 type App struct {
-	context     context.Context
-	config      *config.Config
-	log         *logger.Logger
-	server      *server.Server
-	xray        *xray.Xray
-	database    *database.Database
-	coordinator *coordinator.Coordinator
+	context  context.Context
+	config   *config.Config
+	log      *logger.Logger
+	server   *server.Server
+	xray     *xray.Xray
+	database *database.Database
 }
 
 func New() (a *App, err error) {
@@ -40,7 +38,6 @@ func New() (a *App, err error) {
 
 	a.xray = xray.New(a.log, xray.NewConfig(), a.config.XrayConfigPath(), a.config.XrayBinaryPath())
 	a.database = database.New(a.log)
-	a.coordinator = coordinator.New(a.config, a.log, a.database, a.xray)
 	a.server = server.New(a.config, a.log, a.xray, a.database)
 
 	a.log.Info("app: modules initialized successfully")
@@ -53,7 +50,6 @@ func New() (a *App, err error) {
 func (a *App) Boot() {
 	a.xray.Run()
 	a.database.Init()
-	a.coordinator.Run()
 	a.server.Run()
 	a.log.Info("app: modules ran successfully")
 }

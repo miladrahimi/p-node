@@ -7,6 +7,7 @@ import (
 	"github.com/miladrahimi/xray-manager/pkg/logger"
 	"github.com/miladrahimi/xray-manager/pkg/utils"
 	"go.uber.org/zap"
+	"math/rand"
 	"os"
 )
 
@@ -23,6 +24,12 @@ type Database struct {
 
 func (d *Database) Init() {
 	if !utils.FileExist(Path) {
+		if !utils.PortFree(d.Data.Settings.HttpPort) {
+			var err error
+			if d.Data.Settings.HttpPort, err = utils.FreePort(); err != nil {
+				d.l.Fatal("database: cannot init free port for http", zap.Error(err))
+			}
+		}
 		d.Save()
 	}
 	d.Load()
@@ -63,9 +70,8 @@ func New(l *logger.Logger) *Database {
 		l: l,
 		Data: &Data{
 			Settings: &Settings{
-				XrayApiPort: 3411,
-				HttpPort:    1826,
-				HttpToken:   random.String(16),
+				HttpPort:  rand.Intn(64536) + 1000,
+				HttpToken: random.String(16),
 			},
 		},
 	}

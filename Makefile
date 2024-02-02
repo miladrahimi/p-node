@@ -10,11 +10,7 @@ build:
 	go build main.go -o ssm
 
 info:
-	@json_file="$(CURDIR)/storage/database.json"; \
-	http_port=$$(jq -r '.settings.http_port' "$$json_file"); \
-	http_token=$$(jq -r '.settings.http_token' "$$json_file"); \
-	echo "HTTP Port: $${http_port}"; \
-	echo "HTTP Token: $${http_token}";
+	@cat "$(CURDIR)/storage/database.json" && echo ""
 
 fresh:
 	rm storage/database.json

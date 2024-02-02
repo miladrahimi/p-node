@@ -22,12 +22,12 @@ func ConfigsStore(x *xray.Xray) echo.HandlerFunc {
 			})
 		}
 
-		config.ApiInbound().Port = x.Config().ApiInbound().Port
 		if config.DirectInbound() != nil {
-			if x.Config().DirectInbound() == nil || config.DirectInbound().Port != x.Config().DirectInbound().Port {
-				if !utils.PortFree(config.DirectInbound().Port) {
+			p := config.DirectInbound().Port
+			if x.Config().DirectInbound() == nil || p != x.Config().DirectInbound().Port {
+				if !utils.PortFree(p) {
 					return c.JSON(http.StatusUnprocessableEntity, map[string]string{
-						"message": "The direct inbound port is already in use",
+						"message": fmt.Sprintf("The direct inbound port '%d' is already in use", p),
 					})
 				}
 			}
