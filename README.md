@@ -27,7 +27,7 @@ docker compose up -d
 ```
 
 ```shell
-# Show Information required for Xray Manager
+# Show information required for Xray Manager
 make info
 ```
 
