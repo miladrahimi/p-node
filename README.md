@@ -20,7 +20,7 @@ chmod +x bbr.sh && bash bbr.sh
 
 ```shell
 # Install Xray Node
-git clone https://github.com/miladrahimi/xray-node.git xray-node
+git clone https://github.com/miladrahimi/xray-node.git
 cd xray-node
 docker compose up -d
 ```
