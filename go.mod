@@ -6,7 +6,7 @@ require (
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/labstack/gommon v0.4.2
-	github.com/miladrahimi/xray-manager v0.0.0-20240202172822-392edd8488ae
+	github.com/miladrahimi/xray-manager v0.0.0-20240203152848-7a1954240710
 	github.com/spf13/cobra v1.8.0
 	go.uber.org/zap v1.26.0
 )
@@ -20,7 +20,7 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
-	github.com/leodido/go-urn v1.3.0 // indirect
+	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/pires/go-proxyproto v0.7.0 // indirect
