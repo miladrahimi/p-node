@@ -38,8 +38,8 @@ make info
 ### Update
 
 ``` shell
+# Execute this each time a new version is released
 make update
-# Execute this each time a new version is released.
 ```
 
 ## Links
