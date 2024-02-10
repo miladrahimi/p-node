@@ -10,9 +10,9 @@ build:
 	go build main.go -o ssm
 
 info:
-	@printf "IP: "
+	@echo "IP: "
 	@curl ifconfig.io
-	@printf "DB: "
+	@echo "Details: "
 	@cat "$(CURDIR)/storage/database.json" && echo ""
 
 fresh:
