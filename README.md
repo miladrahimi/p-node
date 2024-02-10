@@ -32,14 +32,15 @@ docker compose up -d
 
 ```shell
 # Show information required for Xray Manager
+sleep 3
 make info
 ```
 
 ### Update
 
 ``` shell
+# Execute this each time a new version is released
 make update
-# Execute this each time a new version is released.
 ```
 
 ## Links
