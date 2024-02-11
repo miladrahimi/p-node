@@ -24,6 +24,8 @@ github.com/go-playground/validator v9.31.0+incompatible h1:UA72EPEogEnq76ehGdEDp
 github.com/go-playground/validator v9.31.0+incompatible/go.mod h1:yrEkQXlcI+PugkyDjY2bRrL/UBU4f3rvrgkN3V8JEig=
 github.com/go-playground/validator/v10 v10.17.0 h1:SmVVlfAOtlZncTxRuinDPomC2DkXJ4E5T9gDA0AIH74=
 github.com/go-playground/validator/v10 v10.17.0/go.mod h1:9iXMNT7sEkjXb0I+enO7QXmzG6QCsPWY4zveKFVRSyU=
+github.com/go-playground/validator/v10 v10.18.0 h1:BvolUXjp4zuvkZ5YN5t7ebzbhlUtPsPm2S9NAZ5nl9U=
+github.com/go-playground/validator/v10 v10.18.0/go.mod h1:dbuPbCMFw/DrkbEynArYaCwl3amGuJotoKCe95atGMM=
 github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 h1:tfuBGBXKqDEevZMzYi5KSi8KkcZtzBcTgAUUtapy0OI=
 github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572/go.mod h1:9Pwr4B2jHnOSGXyyzV8ROjYa2ojvAY6HCGYYfMoC3Ls=
 github.com/golang-jwt/jwt v3.2.2+incompatible h1:IfV12K8xAKAnZqdXVzCZ+TOjboZ2keLg81eXfW3O+oY=
@@ -127,6 +129,8 @@ github.com/miladrahimi/xray-manager v0.0.0-20240210220506-bc6fe306ea51 h1:AgYvhA
 github.com/miladrahimi/xray-manager v0.0.0-20240210220506-bc6fe306ea51/go.mod h1:bj4bFshJDCBnlp0srokjtaZM0qncmxxAPfUgq35rizA=
 github.com/miladrahimi/xray-manager v0.0.0-20240210224059-1a771fbffb5c h1:A7y5vnoVemiZk5NNlsdg0K6B4fhMcSAOfLmHe0JadGs=
 github.com/miladrahimi/xray-manager v0.0.0-20240210224059-1a771fbffb5c/go.mod h1:bj4bFshJDCBnlp0srokjtaZM0qncmxxAPfUgq35rizA=
+github.com/miladrahimi/xray-manager v0.0.0-20240211094959-b384ae4861f6 h1:eQ4Z0SC5WOAE0thhVCASIL0VPDqsbFpSEP5mwnBcCSo=
+github.com/miladrahimi/xray-manager v0.0.0-20240211094959-b384ae4861f6/go.mod h1:bj4bFshJDCBnlp0srokjtaZM0qncmxxAPfUgq35rizA=
 github.com/onsi/ginkgo/v2 v2.13.2 h1:Bi2gGVkfn6gQcjNjZJVO8Gf0FHzMPf2phUei9tejVMs=
 github.com/onsi/ginkgo/v2 v2.13.2/go.mod h1:XStQ8QcGwLyF4HdfcZB8SFOS/MWCgDuXMSBe6zrvLgM=
 github.com/pelletier/go-toml v1.9.5 h1:4yBQzkHv+7BHq2PQUZF3Mx0IYxG7LsP222s7Agd3ve8=

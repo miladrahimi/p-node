@@ -10,10 +10,16 @@ build:
 	go build main.go -o ssm
 
 info:
-	@echo "IP: "
-	@curl ifconfig.io
-	@echo "Details: "
-	@cat "$(CURDIR)/storage/database.json" && echo ""
+	@if [ -e "$(CURDIR)/storage/database.json" ]; then \
+        printf "IP: "; \
+        curl ifconfig.io; \
+        printf "DB: "; \
+        cat "$(CURDIR)/storage/database.json"; \
+        printf "\n"\
+    else \
+        echo "The app is not ready yet. Please try again..."; \
+    fi
+
 
 fresh:
 	rm -f storage/database.json
