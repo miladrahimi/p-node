@@ -4,13 +4,13 @@ prepare:
 	./third_party/install-xray-mac.sh
 
 setup:
-	./scripts/setup-updater.sh
+	@./scripts/setup-updater.sh
 	@if [ ! -f ./configs/main.local.json ]; then \
 		cp ./configs/main.json ./configs/main.local.json; \
 	fi
 
 info:
-	./scripts/info.sh
+	@./scripts/info.sh
 
 fresh:
 	rm storage/*.json
