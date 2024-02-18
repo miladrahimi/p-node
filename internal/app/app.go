@@ -48,7 +48,7 @@ func New() (a *App, err error) {
 }
 
 func (a *App) Boot() {
-	a.xray.Run()
+	a.xray.RunWithConfig()
 	a.database.Init()
 	a.server.Run()
 	a.log.Info("app: modules ran successfully")
