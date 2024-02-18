@@ -27,6 +27,7 @@ sudo sysctl -p
 # Install Xray Node
 git clone https://github.com/miladrahimi/xray-node.git
 cd xray-node
+make setup
 docker compose up -d
 ```
 
