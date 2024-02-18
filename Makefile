@@ -30,6 +30,5 @@ update: setup
 	git pull
 	docker compose pull
 	docker compose down
-	rm -f ./storage/xray.json
 	docker compose up -d
 	@echo "$(shell date '+%Y-%m-%d %H:%M:%S') Updated." >> ./storage/updates.txt
