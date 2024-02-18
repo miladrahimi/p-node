@@ -11,14 +11,14 @@ setup:
 
 info:
 	@if [ -e "$(CURDIR)/storage/database.json" ]; then \
-        printf "IP: "; \
-        curl ifconfig.io; \
-        printf "DB: "; \
-        cat "$(CURDIR)/storage/database.json"; \
-        printf "\n"\
-    else \
-        echo "The app is not ready yet. Please try again..."; \
-    fi
+		printf "IP: "; \
+		curl ifconfig.io; \
+		printf "DB: "; \
+		cat "$(CURDIR)/storage/database.json"; \
+		printf "\n"\
+	else \
+		echo "The app is not ready yet. Please try again..."; \
+	fi
 
 
 fresh:

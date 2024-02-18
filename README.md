@@ -32,7 +32,6 @@ docker compose up -d
 
 ```shell
 # Show information required for Xray Manager
-sleep 3
 make info
 ```
 
