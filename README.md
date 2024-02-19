@@ -1,9 +1,13 @@
 # Xray Node
 
 > [!CAUTION]
-> **Update [Xray Manager](https://github.com/miladrahimi/xray-manager) first!**
+> 
+> **Update [Xray Manager](https://github.com/miladrahimi/xray-manager) to `v1.2.0` first!**
 > 
 > **Just run `make update && make update` in the Xray Manager directory in your bridge server.**
+>
+> **Then check the version (run `make version`), it must be `v1.2.0` or newer.**
+> 
 
 ## Documentation
 
