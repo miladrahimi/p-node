@@ -3,7 +3,7 @@
 > [!CAUTION]
 > **Update [Xray Manager](https://github.com/miladrahimi/xray-manager) first!**
 > 
-> **Just run the `make update && make update` command in the Xray Manager directory in your bridge server.**
+> **Just run `make update && make update` in the Xray Manager directory in your bridge server.**
 
 ## Documentation
 
