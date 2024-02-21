@@ -34,7 +34,7 @@ sudo sysctl -p
 
 ```shell
 # Install Xray Node
-for ((i=1; ; i++)); do [ ! -d "xray-node-${i}" ] && break; done
+for ((i=1;;i++)); do [ ! -d "xray-node-${i}" ] && break; done
 git clone https://github.com/miladrahimi/xray-node.git "xray-node-${i}"
 cd xray-node
 make setup
