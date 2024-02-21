@@ -15,7 +15,7 @@
 
 ```shell
 # Install the requirements
-apt-get -y update && apt-get -y upgrade
+apt-get -y update
 apt-get -y install make wget curl vim git openssl
 ```
 
@@ -34,7 +34,8 @@ sudo sysctl -p
 
 ```shell
 # Install Xray Node
-git clone https://github.com/miladrahimi/xray-node.git
+for ((i=1; ; i++)); do [ ! -d "xray-node-${i}" ] && break; done
+git clone https://github.com/miladrahimi/xray-node.git "xray-node-${i}"
 cd xray-node
 make setup
 docker compose up -d
