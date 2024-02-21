@@ -36,7 +36,7 @@ sudo sysctl -p
 # Install Xray Node
 for ((i=1;;i++)); do [ ! -d "xray-node-${i}" ] && break; done
 git clone https://github.com/miladrahimi/xray-node.git "xray-node-${i}"
-cd xray-node
+cd "xray-node-${i}"
 make setup
 docker compose up -d
 ```
