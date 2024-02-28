@@ -46,12 +46,11 @@ docker compose up -d
 make info
 ```
 
-### Update
+### System Requirements
 
-``` shell
-# Execute this each time a new version is released
-make update
-```
+ * Operating system: Debian or Ubuntu
+ * RAM: 1 GB
+ * CPU: 1 Core
 
 ## Links
 
