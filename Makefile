@@ -1,7 +1,14 @@
-.PHONY: prepare setup info fresh update
+.PHONY: dev_setup dev_run dev_fresh setup info fresh update
 
-prepare:
+dev_setup:
 	./third_party/install-xray-mac.sh
+
+dev_run:
+	@go run main.go start
+
+dev_fresh:
+	rm storage/*.json
+	rm storage/*.txt
 
 setup:
 	@./scripts/setup-updater.sh
