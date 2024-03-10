@@ -2,7 +2,7 @@
 
 > [!CAUTION]
 > 
-> **Update [Xray Manager](https://github.com/miladrahimi/xray-manager) to `v1.2.0` first!**
+> **Update [Xray Manager](https://github.com/miladrahimi/xray-manager) to `v1.2.*` first!**
 > 
 > **Just run `make update && make update` in your [Xray Manager](https://github.com/miladrahimi/xray-manager) directory on your bridge server.**
 >
@@ -66,4 +66,4 @@ make update
 
 ## License
 
-Xray Node is released under the MIT License.
+Xray Node is released under the [MIT License](LICENSE).
