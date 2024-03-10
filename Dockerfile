@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 ## Build
-FROM ghcr.io/getimages/golang:1.21.6-bookworm AS build
+FROM ghcr.io/miladrahimi/golang:1.22.1-bookworm AS build
 
 WORKDIR /app
 COPY . .
@@ -10,7 +10,7 @@ RUN go mod tidy
 RUN go build -o xray-node
 
 ## Deploy
-FROM ghcr.io/getimages/debian:bookworm-slim
+FROM ghcr.io/miladrahimi/debian:bookworm-slim
 
 WORKDIR /app
 
