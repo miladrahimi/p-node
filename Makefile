@@ -1,4 +1,4 @@
-.PHONY: dev_setup dev_run dev_fresh setup info fresh update
+.PHONY: dev_setup dev_run dev_fresh setup info fresh update version
 
 dev_setup:
 	@./scripts/install-xray-mac.sh
@@ -30,3 +30,6 @@ update: setup
 	docker compose down
 	docker compose up -d
 	@echo "$(shell date '+%Y-%m-%d %H:%M:%S') Updated." >> ./storage/updates.txt
+
+version:
+	@docker compose exec app ./xray-node version
