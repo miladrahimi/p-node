@@ -12,13 +12,19 @@ func ConfigsStore(x *xray.Xray) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var config xray.Config
 		if err := c.Bind(&config); err != nil {
-			return c.JSON(http.StatusUnprocessableEntity, map[string]string{
+			return c.JSON(http.StatusBadRequest, map[string]string{
 				"message": "Cannot parse the request body.",
 			})
 		}
 		if err := config.Validate(); err != nil {
 			return c.JSON(http.StatusUnprocessableEntity, map[string]string{
 				"message": fmt.Sprintf("Validation error: %v", err.Error()),
+			})
+		}
+
+		if c.Request().Header.Get("X-App-Name") != "XrayManager" {
+			return c.JSON(http.StatusBadRequest, map[string]string{
+				"message": "Headers are not valid.",
 			})
 		}
 
