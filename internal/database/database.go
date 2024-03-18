@@ -11,7 +11,7 @@ import (
 	"os"
 )
 
-const Path = "storage/database.json"
+const Path = "storage/database/app.json"
 
 type Data struct {
 	Settings *Settings `json:"settings"`
@@ -27,7 +27,7 @@ func (d *Database) Init() {
 		if !utils.PortFree(d.Data.Settings.HttpPort) {
 			var err error
 			if d.Data.Settings.HttpPort, err = utils.FreePort(); err != nil {
-				d.l.Fatal("database: cannot init free port for http", zap.Error(err))
+				d.l.Exit("database: cannot init free port for http", zap.Error(err))
 			}
 		}
 		d.Save()
@@ -38,16 +38,16 @@ func (d *Database) Init() {
 func (d *Database) Load() {
 	content, err := os.ReadFile(Path)
 	if err != nil {
-		d.l.Fatal("database: cannot load file", zap.String("file", Path), zap.Error(err))
+		d.l.Exit("database: cannot load file", zap.String("file", Path), zap.Error(err))
 	}
 
 	err = json.Unmarshal(content, d.Data)
 	if err != nil {
-		d.l.Fatal("database: cannot unmarshall data", zap.Error(err))
+		d.l.Exit("database: cannot unmarshall data", zap.Error(err))
 	}
 
 	if err = validator.New().Struct(d); err != nil {
-		d.l.Fatal("database: cannot validate data", zap.Error(err))
+		d.l.Exit("database: cannot validate data", zap.Error(err))
 	}
 }
 
@@ -57,11 +57,11 @@ func (d *Database) Save() {
 	}()
 	content, err := json.Marshal(d.Data)
 	if err != nil {
-		d.l.Fatal("database: cannot marshal data", zap.Error(err))
+		d.l.Exit("database: cannot marshal data", zap.Error(err))
 	}
 
 	if err = os.WriteFile(Path, content, 0755); err != nil {
-		d.l.Fatal("database: cannot save file", zap.String("file", Path), zap.Error(err))
+		d.l.Exit("database: cannot save file", zap.String("file", Path), zap.Error(err))
 	}
 }
 

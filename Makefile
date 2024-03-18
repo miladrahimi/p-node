@@ -7,8 +7,10 @@ dev_run:
 	@go run main.go start
 
 dev_fresh:
-	rm storage/*.json
-	rm storage/*.txt
+	rm -f storage/app/*.json
+	rm -f storage/app/*.txt
+	rm -f storage/database/*.json
+	rm -f storage/logs/*.log
 
 setup:
 	@./scripts/setup-updater.sh
@@ -20,16 +22,15 @@ info:
 	@./scripts/info.sh
 
 fresh:
-	rm storage/*.json
+	rm -f storage/app/*.json
+	rm -f storage/app/*.txt
+	rm -f storage/database/*.json
+	rm -f storage/logs/*.log
 	docker compose restart
 
 update: setup
-	@echo "$(shell date '+%Y-%m-%d %H:%M:%S') Updating..." >> ./storage/updates.txt
-	git pull
-	docker compose pull
-	docker compose down
-	docker compose up -d
-	@echo "$(shell date '+%Y-%m-%d %H:%M:%S') Updated." >> ./storage/updates.txt
+	@git pull
+	@./scripts/update.sh
 
 version:
 	@docker compose exec app ./xray-node version

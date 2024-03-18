@@ -14,44 +14,43 @@ import (
 )
 
 type App struct {
-	context  context.Context
-	config   *config.Config
-	log      *logger.Logger
-	server   *server.Server
-	xray     *xray.Xray
-	database *database.Database
+	context    context.Context
+	shutdown   chan struct{}
+	Config     *config.Config
+	Logger     *logger.Logger
+	HttpServer *server.Server
+	Xray       *xray.Xray
+	Database   *database.Database
 }
 
 func New() (a *App, err error) {
 	a = &App{}
 
-	a.config = config.New()
-	if err = a.config.Init(); err != nil {
+	a.Config = config.New()
+	if err = a.Config.Init(); err != nil {
 		return nil, err
 	}
-	a.log = logger.New(a.config.Logger.Level, a.config.Logger.Format, a.ShutdownModules)
-	if err = a.log.Init(); err != nil {
+	a.Logger = logger.New(a.Config.Logger.Level, a.Config.Logger.Format, a.shutdown)
+	if err = a.Logger.Init(); err != nil {
 		return nil, err
 	}
 
-	a.log.Info("app: logger and config initialized successfully")
+	a.Logger.Info("app: logger and Config initialized successfully")
 
-	a.xray = xray.New(a.log, a.config.XrayConfigPath(), a.config.XrayBinaryPath())
-	a.database = database.New(a.log)
-	a.server = server.New(a.config, a.log, a.xray, a.database)
+	a.Xray = xray.New(a.Logger, a.Config.XrayConfigPath(), a.Config.XrayBinaryPath())
+	a.Database = database.New(a.Logger)
+	a.HttpServer = server.New(a.Config, a.Logger, a.Xray, a.Database)
 
-	a.log.Info("app: modules initialized successfully")
+	a.Logger.Info("app: modules initialized successfully")
 
 	a.setupSignalListener()
 
 	return a, nil
 }
 
-func (a *App) Boot() {
-	a.xray.RunWithConfig()
-	a.database.Init()
-	a.server.Run()
-	a.log.Info("app: modules ran successfully")
+func (a *App) Init() {
+	a.Database.Init()
+	a.Logger.Info("app: initialized successfully")
 }
 
 func (a *App) setupSignalListener() {
@@ -61,10 +60,13 @@ func (a *App) setupSignalListener() {
 	go func() {
 		signalChannel := make(chan os.Signal, 2)
 		signal.Notify(signalChannel, os.Interrupt, syscall.SIGTERM)
-
 		s := <-signalChannel
-		a.log.Engine.Info("app: system call", zap.String("signal", s.String()))
+		a.Logger.Info("app: system call", zap.String("signal", s.String()))
+		cancel()
+	}()
 
+	go func() {
+		<-a.shutdown
 		cancel()
 	}()
 }
@@ -73,20 +75,15 @@ func (a *App) Wait() {
 	<-a.context.Done()
 }
 
-func (a *App) ShutdownModules() {
-	a.log.Info("app: shutting down modules...")
-	if a.server != nil {
-		a.server.Shutdown()
-	}
-	if a.xray != nil {
-		a.xray.Shutdown()
-	}
-}
-
 func (a *App) Shutdown() {
-	a.log.Info("app: shutting down...")
-	a.ShutdownModules()
-	if a.log != nil {
-		a.log.Shutdown()
+	a.Logger.Info("app: shutting down...")
+	if a.HttpServer != nil {
+		a.HttpServer.Shutdown()
+	}
+	if a.Xray != nil {
+		a.Xray.Shutdown()
+	}
+	if a.Logger != nil {
+		a.Logger.Shutdown()
 	}
 }
