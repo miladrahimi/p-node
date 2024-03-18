@@ -15,14 +15,10 @@ var startCmd = &cobra.Command{
 
 func startFunc(_ *cobra.Command, _ []string) {
 	if utils.FileExist("./storage/database.json") {
-		fmt.Println("here")
-		err := os.Rename("./storage/database.json", "./storage/database/app.json")
-		fmt.Println(err)
+		_ = os.Rename("./storage/database.json", "./storage/database/app.json")
 	}
 	if utils.FileExist("./storage/xray.json") {
-		fmt.Println("here")
-		err := os.Rename("./storage/xray.json", "./storage/app/xray.json")
-		fmt.Println(err)
+		_ = os.Rename("./storage/xray.json", "./storage/app/xray.json")
 	}
 
 	a, err := app.New()
