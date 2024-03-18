@@ -1,7 +1,5 @@
 #!/bin/bash
 
-apt-get install cron -y
-
 ROOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/.."
 
 COMMAND="make -C $ROOT_DIR update"
