@@ -16,7 +16,7 @@
 ```shell
 # Install the requirements
 apt-get -y update
-apt-get -y install make wget curl vim git openssl
+apt-get -y install make wget curl vim git openssl cron
 if command -v ufw &> /dev/null; then sudo ufw disable; fi
 ```
 
