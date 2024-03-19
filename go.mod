@@ -8,7 +8,7 @@ require (
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/labstack/gommon v0.4.2
-	github.com/miladrahimi/p-manager v0.0.0-20240319174816-d91d3452a687
+	github.com/miladrahimi/p-manager v0.0.0-20240319180121-6c5fce64c057
 	github.com/spf13/cobra v1.8.0
 	go.uber.org/zap v1.27.0
 )

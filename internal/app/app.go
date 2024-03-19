@@ -25,6 +25,7 @@ type App struct {
 
 func New() (a *App, err error) {
 	a = &App{}
+	a.shutdown = make(chan struct{})
 
 	a.Config = config.New()
 	if err = a.Config.Init(); err != nil {

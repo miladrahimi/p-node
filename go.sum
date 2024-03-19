@@ -60,6 +60,8 @@ github.com/mattn/go-isatty v0.0.20 h1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWE
 github.com/mattn/go-isatty v0.0.20/go.mod h1:W+V8PltTTMOvKvAeJH7IuucS94S2C6jfK/D7dTCTo3Y=
 github.com/miladrahimi/p-manager v0.0.0-20240319174816-d91d3452a687 h1:SMHpisPL/5jBnsLEhR6BwZbuLP+agsejpDGhY+ik5WM=
 github.com/miladrahimi/p-manager v0.0.0-20240319174816-d91d3452a687/go.mod h1:twB/Ge+SExcQVtZBORqAo4k0LHt0axO0nqJ/mFCsQhk=
+github.com/miladrahimi/p-manager v0.0.0-20240319180121-6c5fce64c057 h1:KNXUJHJiYIvXdrPgT0goj4zCwYodWWpolnPq1pUm/Nw=
+github.com/miladrahimi/p-manager v0.0.0-20240319180121-6c5fce64c057/go.mod h1:twB/Ge+SExcQVtZBORqAo4k0LHt0axO0nqJ/mFCsQhk=
 github.com/onsi/ginkgo/v2 v2.16.0 h1:7q1w9frJDzninhXxjZd+Y/x54XNjG/UlRLIYPZafsPM=
 github.com/onsi/ginkgo/v2 v2.16.0/go.mod h1:llBI3WDLL9Z6taip6f33H76YcWtJv+7R3HigUjbIBOs=
 github.com/pelletier/go-toml v1.9.5 h1:4yBQzkHv+7BHq2PQUZF3Mx0IYxG7LsP222s7Agd3ve8=
