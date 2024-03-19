@@ -1,4 +1,4 @@
-DB_PATH="$(realpath "$(dirname "$0")/../storage/database.json")"
+DB_PATH="$(realpath "$(dirname "$0")/../storage/database/app.json")"
 if [ -f "$DB_PATH" ]; then
   printf "IP: " && curl ifconfig.io
   printf "DB: " && cat "$DB_PATH" && printf "\n"
