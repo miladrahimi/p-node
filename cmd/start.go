@@ -2,10 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/miladrahimi/xray-manager/pkg/utils"
+	"github.com/miladrahimi/p-manager/pkg/utils"
+	"github.com/miladrahimi/p-node/internal/app"
 	"github.com/spf13/cobra"
 	"os"
-	"xray-node/internal/app"
 )
 
 var startCmd = &cobra.Command{

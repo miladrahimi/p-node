@@ -2,15 +2,15 @@ package app
 
 import (
 	"context"
-	"github.com/miladrahimi/xray-manager/pkg/logger"
-	"github.com/miladrahimi/xray-manager/pkg/xray"
+	"github.com/miladrahimi/p-manager/pkg/logger"
+	"github.com/miladrahimi/p-manager/pkg/xray"
+	"github.com/miladrahimi/p-node/internal/config"
+	"github.com/miladrahimi/p-node/internal/database"
+	"github.com/miladrahimi/p-node/internal/http/server"
 	"go.uber.org/zap"
 	"os"
 	"os/signal"
 	"syscall"
-	"xray-node/internal/config"
-	"xray-node/internal/database"
-	"xray-node/internal/http/server"
 )
 
 type App struct {

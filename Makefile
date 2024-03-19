@@ -7,8 +7,8 @@ dev_run:
 	@go run main.go start
 
 dev_fresh:
-	rm -f storage/app/*.json
 	rm -f storage/app/*.txt
+	rm -f storage/app/*.json
 	rm -f storage/database/*.json
 	rm -f storage/logs/*.log
 
@@ -22,8 +22,8 @@ info:
 	@./scripts/info.sh
 
 fresh:
-	rm -f storage/app/*.json
 	rm -f storage/app/*.txt
+	rm -f storage/app/*.json
 	rm -f storage/database/*.json
 	rm -f storage/logs/*.log
 	docker compose restart
@@ -33,4 +33,4 @@ update: setup
 	@./scripts/update.sh
 
 version:
-	@docker compose exec app ./xray-node version
+	@docker compose exec app ./p-node version

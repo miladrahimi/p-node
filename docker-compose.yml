@@ -4,7 +4,7 @@ services:
   app:
     build:
       context: .
-    image: ghcr.io/miladrahimi/xray-node:v1
+    image: ghcr.io/miladrahimi/p-node:${TAG:-stable}
     restart: always
     network_mode: host
     volumes:

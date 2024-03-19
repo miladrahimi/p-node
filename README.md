@@ -1,13 +1,4 @@
-# Xray Node
-
-> [!CAUTION]
-> 
-> **Update [Xray Manager](https://github.com/miladrahimi/xray-manager) to `v1.2.*` first!**
-> 
-> **Just run `make update && make update` in your [Xray Manager](https://github.com/miladrahimi/xray-manager) directory on your bridge server.**
->
-> **Then check the version (run `make version`), it must be `v1.2.0` or newer.**
-> 
+# P-Node
 
 ## Documentation
 
@@ -34,16 +25,16 @@ sudo sysctl -p
 ```
 
 ```shell
-# Install Xray Node
-for ((i=1;;i++)); do [ ! -d "xray-node-${i}" ] && break; done
-git clone https://github.com/miladrahimi/xray-node.git "xray-node-${i}"
-cd "xray-node-${i}"
+# Install P-Node
+for ((i=1;;i++)); do [ ! -d "p-node-${i}" ] && break; done
+git clone https://github.com/miladrahimi/p-node.git "p-node-${i}"
+cd "p-node-${i}"
 make setup
 docker compose up -d
 ```
 
 ```shell
-# Show information required for Xray Manager
+# Show information required for P-Manager
 make info
 ```
 
@@ -56,15 +47,14 @@ make update
 
 ### Requirements
 
- * Operating system: Linux (Debian or Ubuntu)
- * RAM: 1 GB or more
- * CPU: 1 Core or more
+* Operating system: Linux (Debian or Ubuntu)
+* RAM: 1 GB or more
+* CPU: 1 Core or more
 
 ## Links
 
-* https://github.com/miladrahimi/xray-manager
+* https://github.com/miladrahimi/p-manager
 
 ## License
 
 This project is governed by the terms of the [LICENSE](LICENSE.md).
-Users are only allowed to use this project with explicit permission from the creator.

@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/miladrahimi/p-node/cmd"
 	"os"
-	"xray-node/cmd"
 )
 
 func main() {
