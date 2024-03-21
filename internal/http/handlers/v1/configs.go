@@ -22,12 +22,6 @@ func ConfigsStore(x *xray.Xray) echo.HandlerFunc {
 			})
 		}
 
-		if c.Request().Header.Get("X-App-Name") != "XrayManager" {
-			return c.JSON(http.StatusBadRequest, map[string]string{
-				"message": "Headers are not valid.",
-			})
-		}
-
 		for _, i := range config.Inbounds {
 			if i.Tag != "api" && !utils.PortFree(i.Port) {
 				return c.JSON(http.StatusUnprocessableEntity, map[string]string{
