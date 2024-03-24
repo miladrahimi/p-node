@@ -10,7 +10,7 @@ import (
 
 const MainPath = "configs/main.json"
 const LocalPath = "configs/main.local.json"
-const AppName = "XrayNode"
+const AppName = "P-Node"
 const AppVersion = "v1.2.0"
 
 var xrayConfigPath = "storage/app/xray.json"
