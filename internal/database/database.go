@@ -9,6 +9,7 @@ import (
 	"go.uber.org/zap"
 	"math/rand"
 	"os"
+	"sync"
 )
 
 const Path = "storage/database/app.json"
@@ -18,11 +19,15 @@ type Data struct {
 }
 
 type Database struct {
-	Data *Data
-	l    *logger.Logger
+	l      *logger.Logger
+	Locker *sync.Mutex
+	Data   *Data
 }
 
 func (d *Database) Init() {
+	d.Locker.Lock()
+	defer d.Locker.Unlock()
+
 	if !utils.FileExist(Path) {
 		if !utils.PortFree(d.Data.Settings.HttpPort) {
 			var err error
@@ -31,8 +36,9 @@ func (d *Database) Init() {
 			}
 		}
 		d.Save()
+	} else {
+		d.Load()
 	}
-	d.Load()
 }
 
 func (d *Database) Load() {
@@ -52,9 +58,6 @@ func (d *Database) Load() {
 }
 
 func (d *Database) Save() {
-	defer func() {
-		d.Load()
-	}()
 	content, err := json.Marshal(d.Data)
 	if err != nil {
 		d.l.Fatal("database: cannot marshal data", zap.Error(err))
@@ -67,7 +70,8 @@ func (d *Database) Save() {
 
 func New(l *logger.Logger) *Database {
 	return &Database{
-		l: l,
+		Locker: &sync.Mutex{},
+		l:      l,
 		Data: &Data{
 			Settings: &Settings{
 				HttpPort:  rand.Intn(64536) + 1000,
