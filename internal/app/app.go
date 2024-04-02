@@ -36,8 +36,6 @@ func New() (a *App, err error) {
 		return nil, err
 	}
 
-	a.Logger.Info("app: logger and Config initialized successfully")
-
 	a.Xray = xray.New(a.Logger, a.Config.XrayConfigPath(), a.Config.XrayBinaryPath())
 	a.Database = database.New(a.Logger)
 	a.HttpServer = server.New(a.Config, a.Logger, a.Xray, a.Database)
