@@ -40,14 +40,16 @@ make info
 
 ### Update
 
+Automatic updates are set up through cron jobs by default.
+For earlier updates, run the command below:
+
 ``` shell
-# Execute this each time a new version is released
 make update
 ```
 
 ### Requirements
 
-* Operating system: Linux (Debian or Ubuntu)
+* Operating systems: Debian or Ubuntu
 * RAM: 1 GB or more
 * CPU: 1 Core or more
 
