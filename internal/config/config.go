@@ -11,7 +11,7 @@ import (
 const MainPath = "configs/main.json"
 const LocalPath = "configs/main.local.json"
 const AppName = "P-Node"
-const AppVersion = "v1.2.0"
+const AppVersion = "v1.3.0"
 
 var xrayConfigPath = "storage/app/xray.json"
 var xrayBinaryPaths = map[string]string{
