@@ -11,7 +11,7 @@ func init() {
 		Use: "start",
 		Run: func(_ *cobra.Command, _ []string) {
 			a, err := app.New()
-			defer a.Shutdown()
+			defer a.Close()
 			if err != nil {
 				panic(fmt.Sprintf("%+v\n", err))
 			}

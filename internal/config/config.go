@@ -8,8 +8,8 @@ import (
 	"runtime"
 )
 
-const MainPath = "configs/main.json"
-const LocalPath = "configs/main.local.json"
+const MainPath = "configs/main.defaults.json"
+const LocalPath = "configs/main.json"
 const AppName = "P-Node"
 const AppVersion = "v1.3.0"
 
