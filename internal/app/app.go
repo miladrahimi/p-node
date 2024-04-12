@@ -38,7 +38,7 @@ func New() (a *App, err error) {
 		return a, err
 	}
 
-	a.Xray = xray.New(a.Logger, config.XrayConfigPath, config.XrayBinaryPath())
+	a.Xray = xray.New(a.Context, a.Logger, config.XrayConfigPath, config.XrayBinaryPath())
 	a.Database = database.New(a.Logger)
 	a.HttpServer = server.New(a.Config, a.Logger, a.Xray, a.Database)
 
@@ -51,6 +51,7 @@ func New() (a *App, err error) {
 
 func (a *App) Init() {
 	a.Database.Init()
+	a.Xray.Init()
 	a.Logger.Info("app: initialized successfully")
 }
 
@@ -79,12 +80,12 @@ func (a *App) Close() {
 	defer a.Logger.Info("app: closed")
 
 	if a.HttpServer != nil {
-		a.HttpServer.Shutdown()
+		a.HttpServer.Close()
 	}
 	if a.Xray != nil {
-		a.Xray.Shutdown()
+		a.Xray.Close()
 	}
 	if a.Logger != nil {
-		a.Logger.Shutdown()
+		a.Logger.Close()
 	}
 }

@@ -1,36 +1,33 @@
-.PHONY: dev_setup dev_run dev_fresh setup info fresh update version
+.PHONY: dev-setup dev-run dev-fresh dev-clean setup info fresh update
 
-dev_setup:
-	@./scripts/install-xray-mac.sh
+dev-setup:
+	@./scripts/dev-setup.sh
 
-dev_run:
+dev-run:
 	@go run main.go start
 
-dev_fresh:
-	rm -f storage/app/*.txt
-	rm -f storage/app/*.json
-	rm -f storage/database/*.json
-	rm -f storage/logs/*.log
+dev-fresh:
+	@rm -f storage/app/*.txt
+	@rm -f storage/app/*.json
+	@rm -f storage/database/*.json
+	@rm -f storage/logs/*.log
+
+dev-clean:
+	@rm -f storage/logs/*.log
 
 setup:
-	@./scripts/setup-updater.sh
-	@if [ ! -f ./configs/main.local.json ]; then \
-		cp ./configs/main.json ./configs/main.local.json; \
-	fi
+	@./scripts/setup.sh
 
 info:
 	@./scripts/info.sh
 
 fresh:
-	rm -f storage/app/*.txt
-	rm -f storage/app/*.json
-	rm -f storage/database/*.json
-	rm -f storage/logs/*.log
-	docker compose restart
+	@rm -f storage/app/*.txt
+	@rm -f storage/app/*.json
+	@rm -f storage/database/*.json
+	@rm -f storage/logs/*.log
+	@docker compose restart
 
 update: setup
 	@git pull
 	@./scripts/update.sh
-
-version:
-	@docker compose exec app ./p-node version

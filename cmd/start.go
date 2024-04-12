@@ -16,7 +16,7 @@ func init() {
 				panic(fmt.Sprintf("%+v\n", err))
 			}
 			a.Init()
-			a.Xray.RunWithConfig()
+			a.Xray.Run()
 			a.HttpServer.Run()
 			a.Wait()
 		},
