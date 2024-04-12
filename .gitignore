@@ -1,3 +1,7 @@
 .idea
+third_party/xray-macos-arm64
+
 .DS_Store
 .env
+configs/main.json
+configs/main.local.json
