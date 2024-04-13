@@ -6,14 +6,14 @@ import (
 	"fmt"
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
-	"github.com/miladrahimi/p-manager/pkg/http/middleware"
-	"github.com/miladrahimi/p-manager/pkg/http/validator"
-	"github.com/miladrahimi/p-manager/pkg/logger"
-	"github.com/miladrahimi/p-manager/pkg/xray"
 	"github.com/miladrahimi/p-node/internal/config"
 	"github.com/miladrahimi/p-node/internal/database"
 	"github.com/miladrahimi/p-node/internal/http/handlers"
 	"github.com/miladrahimi/p-node/internal/http/handlers/v1"
+	"github.com/miladrahimi/p-node/pkg/http/middleware"
+	"github.com/miladrahimi/p-node/pkg/http/validator"
+	"github.com/miladrahimi/p-node/pkg/logger"
+	"github.com/miladrahimi/p-node/pkg/xray"
 	"go.uber.org/zap"
 	"net/http"
 	"time"
@@ -31,6 +31,7 @@ type Server struct {
 func (s *Server) Run() {
 	s.engine.Use(echoMiddleware.CORS())
 	s.engine.Use(middleware.Logger(s.l))
+	s.engine.Use(middleware.General())
 
 	s.engine.GET("/", handlers.HomeShow())
 

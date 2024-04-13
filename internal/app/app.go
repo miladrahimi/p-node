@@ -2,11 +2,11 @@ package app
 
 import (
 	"context"
-	"github.com/miladrahimi/p-manager/pkg/logger"
-	"github.com/miladrahimi/p-manager/pkg/xray"
 	"github.com/miladrahimi/p-node/internal/config"
 	"github.com/miladrahimi/p-node/internal/database"
 	"github.com/miladrahimi/p-node/internal/http/server"
+	"github.com/miladrahimi/p-node/pkg/logger"
+	"github.com/miladrahimi/p-node/pkg/xray"
 	"go.uber.org/zap"
 	"os"
 	"os/signal"

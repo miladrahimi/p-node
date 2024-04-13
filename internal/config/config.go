@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/cockroachdb/errors"
 	"github.com/go-playground/validator/v10"
-	"github.com/miladrahimi/p-manager/pkg/utils"
+	"github.com/miladrahimi/p-node/internal/utils"
 	"os"
 	"runtime"
 )

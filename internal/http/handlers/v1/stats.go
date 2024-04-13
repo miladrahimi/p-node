@@ -2,7 +2,7 @@ package v1
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/miladrahimi/p-manager/pkg/xray"
+	"github.com/miladrahimi/p-node/pkg/xray"
 	"net/http"
 )
 
