@@ -3,20 +3,31 @@ package config
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/cockroachdb/errors"
+	"github.com/go-playground/validator/v10"
 	"github.com/miladrahimi/p-manager/pkg/utils"
 	"os"
 	"runtime"
 )
 
-const MainPath = "configs/main.json"
-const LocalPath = "configs/main.local.json"
-const AppName = "P-Node"
-const AppVersion = "v1.3.0"
+const defaultConfigPath = "configs/main.defaults.json"
+const envConfigPath = "configs/main.json"
 
-var xrayConfigPath = "storage/app/xray.json"
+const AppName = "P-Node"
+const AppVersion = "v1.3.1"
+
+const XrayConfigPath = "storage/app/xray.json"
+
 var xrayBinaryPaths = map[string]string{
 	"darwin": "third_party/xray-macos-arm64/xray",
 	"linux":  "third_party/xray-linux-64/xray",
+}
+
+func XrayBinaryPath() string {
+	if path, found := xrayBinaryPaths[runtime.GOOS]; found {
+		return path
+	}
+	return xrayBinaryPaths["linux"]
 }
 
 type Config struct {
@@ -26,50 +37,37 @@ type Config struct {
 	} `json:"logger"`
 }
 
-func (c *Config) Init() (err error) {
-	var content []byte
-	var path string
-
-	if utils.FileExist(LocalPath) {
-		path = LocalPath
-	} else {
-		path = MainPath
-	}
-
-	content, err = os.ReadFile(path)
+func (c *Config) String() string {
+	j, err := json.Marshal(c)
 	if err != nil {
-		return fmt.Errorf("config: cannot load file, err: %v", err)
+		return err.Error()
 	}
+	return string(j)
+}
 
+func (c *Config) Init() (err error) {
+	content, err := os.ReadFile(defaultConfigPath)
+	if err != nil {
+		return errors.WithStack(err)
+	}
 	err = json.Unmarshal(content, &c)
 	if err != nil {
-		return fmt.Errorf("config: cannot validate file, err: %v", err)
+		return errors.WithStack(err)
 	}
 
-	if path == LocalPath {
-		marshalled, err := json.MarshalIndent(c, "", "  ")
+	if utils.FileExist(envConfigPath) {
+		content, err = os.ReadFile(envConfigPath)
 		if err != nil {
-			return fmt.Errorf("config: cannot marshall config, err: %v", err)
+			return errors.WithStack(err)
 		}
-
-		err = os.WriteFile(path, marshalled, 0755)
-		if err != nil {
-			return fmt.Errorf("config: cannot save file, err: %v", err)
+		if err = json.Unmarshal(content, &c); err != nil {
+			return errors.WithStack(err)
 		}
 	}
 
-	return nil
-}
+	fmt.Println("Config:", c.String())
 
-func (c *Config) XrayBinaryPath() string {
-	if path, found := xrayBinaryPaths[runtime.GOOS]; found {
-		return path
-	}
-	return xrayBinaryPaths["linux"]
-}
-
-func (c *Config) XrayConfigPath() string {
-	return xrayConfigPath
+	return errors.WithStack(validator.New().Struct(c))
 }
 
 func New() *Config {

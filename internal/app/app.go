@@ -14,8 +14,9 @@ import (
 )
 
 type App struct {
-	context    context.Context
-	shutdown   chan struct{}
+	Context    context.Context
+	Cancel     context.CancelFunc
+	Shutdown   chan struct{}
 	Config     *config.Config
 	Logger     *logger.Logger
 	HttpServer *server.Server
@@ -25,24 +26,23 @@ type App struct {
 
 func New() (a *App, err error) {
 	a = &App{}
-	a.shutdown = make(chan struct{})
+	a.Context, a.Cancel = context.WithCancel(context.Background())
+	a.Shutdown = make(chan struct{})
 
 	a.Config = config.New()
 	if err = a.Config.Init(); err != nil {
-		return nil, err
+		return a, err
 	}
-	a.Logger = logger.New(a.Config.Logger.Level, a.Config.Logger.Format, a.shutdown)
+	a.Logger = logger.New(a.Config.Logger.Level, a.Config.Logger.Format, a.Shutdown)
 	if err = a.Logger.Init(); err != nil {
-		return nil, err
+		return a, err
 	}
 
-	a.Logger.Info("app: logger and Config initialized successfully")
-
-	a.Xray = xray.New(a.Logger, a.Config.XrayConfigPath(), a.Config.XrayBinaryPath())
+	a.Xray = xray.New(a.Context, a.Logger, config.XrayConfigPath, config.XrayBinaryPath())
 	a.Database = database.New(a.Logger)
 	a.HttpServer = server.New(a.Config, a.Logger, a.Xray, a.Database)
 
-	a.Logger.Info("app: modules initialized successfully")
+	a.Logger.Info("app: constructed successfully")
 
 	a.setupSignalListener()
 
@@ -51,40 +51,41 @@ func New() (a *App, err error) {
 
 func (a *App) Init() {
 	a.Database.Init()
+	a.Xray.Init()
 	a.Logger.Info("app: initialized successfully")
 }
 
 func (a *App) setupSignalListener() {
-	var cancel context.CancelFunc
-	a.context, cancel = context.WithCancel(context.Background())
-
 	go func() {
 		signalChannel := make(chan os.Signal, 2)
 		signal.Notify(signalChannel, os.Interrupt, syscall.SIGTERM)
 		s := <-signalChannel
-		a.Logger.Info("app: system call", zap.String("signal", s.String()))
-		cancel()
+		a.Logger.Info("app: signal received", zap.String("signal", s.String()))
+		a.Cancel()
 	}()
 
 	go func() {
-		<-a.shutdown
-		cancel()
+		<-a.Shutdown
+		a.Cancel()
 	}()
 }
 
 func (a *App) Wait() {
-	<-a.context.Done()
+	a.Logger.Debug("app: waiting...")
+	<-a.Context.Done()
 }
 
-func (a *App) Shutdown() {
-	a.Logger.Info("app: shutting down...")
+func (a *App) Close() {
+	a.Logger.Debug("app: closing...")
+	defer a.Logger.Info("app: closed")
+
 	if a.HttpServer != nil {
-		a.HttpServer.Shutdown()
+		a.HttpServer.Close()
 	}
 	if a.Xray != nil {
-		a.Xray.Shutdown()
+		a.Xray.Close()
 	}
 	if a.Logger != nil {
-		a.Logger.Shutdown()
+		a.Logger.Close()
 	}
 }

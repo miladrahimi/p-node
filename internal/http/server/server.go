@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
+	"github.com/miladrahimi/p-manager/pkg/http/middleware"
+	"github.com/miladrahimi/p-manager/pkg/http/validator"
 	"github.com/miladrahimi/p-manager/pkg/logger"
-	"github.com/miladrahimi/p-manager/pkg/routing/middleware"
-	"github.com/miladrahimi/p-manager/pkg/routing/validator"
 	"github.com/miladrahimi/p-manager/pkg/xray"
 	"github.com/miladrahimi/p-node/internal/config"
 	"github.com/miladrahimi/p-node/internal/database"
@@ -45,20 +45,20 @@ func (s *Server) Run() {
 	go func() {
 		address := fmt.Sprintf("%s:%d", "0.0.0.0", s.database.Data.Settings.HttpPort)
 		if err := s.engine.Start(address); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			s.l.Fatal("http server: cannot start", zap.String("address", address), zap.Error(err))
+			s.l.Fatal("http: server: cannot start", zap.String("address", address), zap.Error(err))
 		}
 	}()
 }
 
-// Shutdown closes the HTTP Server.
-func (s *Server) Shutdown() {
+// Close closes the HTTP Server.
+func (s *Server) Close() {
 	c, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	if err := s.engine.Shutdown(c); err != nil {
-		s.l.Error("http server: cannot close", zap.Error(err))
+		s.l.Error("http: server: cannot close", zap.Error(err))
 	} else {
-		s.l.Debug("http server: closed successfully")
+		s.l.Debug("http: server: closed successfully")
 	}
 }
 

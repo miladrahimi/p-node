@@ -6,19 +6,19 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var startCmd = &cobra.Command{
-	Use: "start",
-	Run: startFunc,
-}
-
-func startFunc(_ *cobra.Command, _ []string) {
-	a, err := app.New()
-	defer a.Shutdown()
-	if err != nil {
-		panic(fmt.Sprintf("%+v\n", err))
-	}
-	a.Init()
-	a.Xray.RunWithConfig()
-	a.HttpServer.Run()
-	a.Wait()
+func init() {
+	rootCmd.AddCommand(&cobra.Command{
+		Use: "start",
+		Run: func(_ *cobra.Command, _ []string) {
+			a, err := app.New()
+			defer a.Close()
+			if err != nil {
+				panic(fmt.Sprintf("%+v\n", err))
+			}
+			a.Init()
+			a.Xray.Run()
+			a.HttpServer.Run()
+			a.Wait()
+		},
+	})
 }
