@@ -15,7 +15,7 @@ FROM ghcr.io/miladrahimi/debian:bookworm-slim
 WORKDIR /app
 
 COPY --from=build /app/p-node p-node
-COPY --from=build /app/configs/main.json configs/main.json
+COPY --from=build /app/configs/main.defaults.json configs/main.defaults.json
 COPY --from=build /app/storage/app/.gitignore storage/app/.gitignore
 COPY --from=build /app/storage/database/.gitignore storage/database/.gitignore
 COPY --from=build /app/storage/logs/.gitignore storage/logs/.gitignore
