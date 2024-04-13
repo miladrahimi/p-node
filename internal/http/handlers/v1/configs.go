@@ -3,8 +3,8 @@ package v1
 import (
 	"fmt"
 	"github.com/labstack/echo/v4"
-	"github.com/miladrahimi/p-manager/pkg/utils"
-	"github.com/miladrahimi/p-manager/pkg/xray"
+	"github.com/miladrahimi/p-node/internal/utils"
+	"github.com/miladrahimi/p-node/pkg/xray"
 	"net/http"
 )
 
