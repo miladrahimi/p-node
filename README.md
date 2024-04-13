@@ -50,6 +50,7 @@ make update
 ### Requirements
 
 * Operating systems: Debian or Ubuntu
+* Architecture: AMD64
 * RAM: 1 GB or more
 * CPU: 1 Core or more
 
