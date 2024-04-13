@@ -1,20 +1,18 @@
 #!/bin/bash
 
-ROOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/.."
+ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/.."
 
-# Setup Git
+# Configure Git
 git config pull.rebase false
 
-# Setup Configuration
-if [ ! -f $ROOT_DIR/configs/main.json ]; then
-		cp $ROOT_DIR/configs/main.defaults.json $ROOT_DIR/configs/main.json;
+# Create Config File
+if [ ! -f "$ROOT"/configs/main.json ]; then
+		cp "$ROOT"/configs/main.defaults.json "$ROOT"/configs/main.json;
 fi
 
 # Setup Cron Jobs
-COMMAND="make -C $ROOT_DIR update"
+COMMAND="make -C $ROOT update"
 if ! crontab -l | grep -q "$COMMAND"; then
     (crontab -l 2>/dev/null; echo "55 3 * * * $COMMAND") | crontab -
     echo "The updater cron job configured."
-else
-    echo "The updater cron job already exists."
 fi
