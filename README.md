@@ -4,28 +4,32 @@
 
 ### Installation
 
+1. Install the requirements
+
 ```shell
-# Install the requirements
 apt-get -y update
 apt-get -y install make wget curl vim git openssl cron
 if command -v ufw &> /dev/null; then sudo ufw disable; fi
 ```
 
+2. Install Docker
+
 ```shell
-# Install Docker
 wget -O install-docker.sh https://get.docker.com
 chmod +x install-docker.sh && ./install-docker.sh && rm install-docker.sh
 ```
 
+3. Install BBR
+
 ```shell
-# Install BBR
 sudo sh -c 'echo "net.core.default_qdisc=fq" >> /etc/sysctl.conf'
 sudo sh -c 'echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf'
 sudo sysctl -p
 ```
 
+4. Install P-Node
+
 ```shell
-# Install P-Node
 for ((i=1;;i++)); do [ ! -d "p-node-${i}" ] && break; done
 git clone https://github.com/miladrahimi/p-node.git "p-node-${i}"
 cd "p-node-${i}"
@@ -33,8 +37,9 @@ make setup
 docker compose up -d
 ```
 
+5. Show information required for P-Manager
+
 ```shell
-# Show information required for P-Manager
 make info
 ```
 
@@ -56,7 +61,7 @@ make update
 
 ## Links
 
-* https://github.com/miladrahimi/p-manager
+* [P-Manager](https://github.com/miladrahimi/p-manager)
 
 ## License
 
