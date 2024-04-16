@@ -7,7 +7,6 @@ toolchain go1.22.1
 require (
 	github.com/cockroachdb/errors v1.11.1
 	github.com/go-playground/validator/v10 v10.19.0
-	github.com/google/uuid v1.6.0
 	github.com/labstack/echo/v4 v4.12.0
 	github.com/labstack/gommon v0.4.2
 	github.com/spf13/cobra v1.8.0
