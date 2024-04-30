@@ -37,7 +37,7 @@ make setup
 docker compose up -d
 ```
 
-5. Show information required for P-Manager
+5. Display information required for P-Manager
 
 ```shell
 make info
@@ -45,8 +45,8 @@ make info
 
 ### Update
 
-Automatic updates are set up through cron jobs by default.
-For earlier updates, run the command below:
+You don't need to update it manually, as automatic updates are configured through cron jobs by default.
+If you require earlier updates, run the following command:
 
 ``` shell
 make update
