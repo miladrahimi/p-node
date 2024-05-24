@@ -22,8 +22,8 @@ chmod +x install-docker.sh && ./install-docker.sh && rm install-docker.sh
 3. Install BBR
 
 ```shell
-sh -c 'echo "net.core.default_qdisc=fq" >> /etc/sysctl.conf'
-sh -c 'echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf'
+echo "net.core.default_qdisc=fq" >> /etc/sysctl.conf
+echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf
 sysctl -p
 ```
 
