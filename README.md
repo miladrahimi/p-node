@@ -7,24 +7,24 @@
 1. Install the requirements
 
 ```shell
-sudo apt-get -y update
-sudo apt-get -y install make wget curl vim git openssl cron
-if command -v ufw &> /dev/null; then sudo ufw disable; fi
+apt-get -y update
+apt-get -y install make wget curl vim git openssl cron
+if command -v ufw &> /dev/null; then ufw disable; fi
 ```
 
 2. Install Docker
 
 ```shell
-sudo wget -O install-docker.sh https://get.docker.com
-sudo chmod +x install-docker.sh && sudo ./install-docker.sh && sudo rm install-docker.sh
+wget -O install-docker.sh https://get.docker.com
+chmod +x install-docker.sh && ./install-docker.sh && rm install-docker.sh
 ```
 
 3. Install BBR
 
 ```shell
-sudo sh -c 'echo "net.core.default_qdisc=fq" >> /etc/sysctl.conf'
-sudo sh -c 'echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf'
-sudo sysctl -p
+sh -c 'echo "net.core.default_qdisc=fq" >> /etc/sysctl.conf'
+sh -c 'echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf'
+sysctl -p
 ```
 
 4. Install P-Node
@@ -34,7 +34,7 @@ for ((i=1;;i++)); do [ ! -d "p-node-${i}" ] && break; done
 git clone https://github.com/miladrahimi/p-node.git "p-node-${i}"
 cd "p-node-${i}"
 make setup
-sudo docker compose up -d
+docker compose up -d
 ```
 
 5. Display information required for P-Manager
