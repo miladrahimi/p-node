@@ -184,11 +184,11 @@ func (x *Xray) QueryStats() []*stats.Stat {
 	return qs.GetStat()
 }
 
-func New(c context.Context, logger *logger.Logger, configPath, binaryPath string) *Xray {
+func New(c context.Context, logger *logger.Logger, logLevel, configPath, binaryPath string) *Xray {
 	return &Xray{
 		context:    c,
 		l:          logger,
-		config:     NewConfig(),
+		config:     NewConfig(logLevel),
 		binaryPath: binaryPath,
 		configPath: configPath,
 		locker:     &sync.Mutex{},

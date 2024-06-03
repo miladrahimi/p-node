@@ -193,10 +193,10 @@ func (c *Config) Validate() error {
 	return errors.WithStack(validator.New(validator.WithRequiredStructEnabled()).Struct(c))
 }
 
-func NewConfig() *Config {
+func NewConfig(logLevel string) *Config {
 	return &Config{
 		Log: &Log{
-			LogLevel: "debug",
+			LogLevel: logLevel,
 			Access:   "./storage/logs/xray-access.log",
 			Error:    "./storage/logs/xray-error.log",
 		},
