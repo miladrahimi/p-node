@@ -38,7 +38,7 @@ func New() (a *App, err error) {
 		return a, err
 	}
 
-	a.Xray = xray.New(a.Context, a.Logger, config.XrayConfigPath, config.XrayBinaryPath())
+	a.Xray = xray.New(a.Context, a.Logger, config.XrayLogLevel, config.XrayConfigPath, config.XrayBinaryPath())
 	a.Database = database.New(a.Logger)
 	a.HttpServer = server.New(a.Config, a.Logger, a.Xray, a.Database)
 

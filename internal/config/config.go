@@ -17,6 +17,7 @@ const AppName = "P-Node"
 const AppVersion = "v1.3.1"
 
 const XrayConfigPath = "storage/app/xray.json"
+const XrayLogLevel = "debug"
 
 var xrayBinaryPaths = map[string]string{
 	"darwin": "third_party/xray-macos-arm64/xray",
