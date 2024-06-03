@@ -123,7 +123,7 @@ type Config struct {
 	Reverse   *Reverse               `json:"reverse,omitempty"`
 }
 
-func (c *Config) MakeShadowsocksInbound(tag, password, method string, port int, clients []*Client) *Inbound {
+func (c *Config) MakeShadowsocksInbound(tag, password, method, network string, port int, clients []*Client) *Inbound {
 	return &Inbound{
 		Tag:      tag,
 		Protocol: "shadowsocks",
@@ -133,7 +133,7 @@ func (c *Config) MakeShadowsocksInbound(tag, password, method string, port int, 
 			Clients:  clients,
 			Password: password,
 			Method:   method,
-			Network:  "tcp,udp",
+			Network:  network,
 		},
 	}
 }
@@ -196,7 +196,7 @@ func (c *Config) Validate() error {
 func NewConfig() *Config {
 	return &Config{
 		Log: &Log{
-			LogLevel: "warning",
+			LogLevel: "debug",
 			Access:   "./storage/logs/xray-access.log",
 			Error:    "./storage/logs/xray-error.log",
 		},
