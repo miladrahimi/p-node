@@ -14,7 +14,7 @@ const defaultConfigPath = "configs/main.defaults.json"
 const envConfigPath = "configs/main.json"
 
 const AppName = "P-Node"
-const AppVersion = "v1.3.2"
+const AppVersion = "v1.3.3"
 
 const XrayConfigPath = "storage/app/xray.json"
 const XrayLogLevel = "debug"
