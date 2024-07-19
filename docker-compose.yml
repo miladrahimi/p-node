@@ -1,6 +1,6 @@
 services:
   app:
-    image: ghcr.io/miladrahimi/p-node:${TAG:-stable}
+    image: ghcr.io/miladrahimi/p-node:${TAG:-latest}
     restart: always
     network_mode: host
     volumes:
