@@ -1,7 +1,9 @@
 #!/bin/bash
 
+# Detect basic variables
+ROOT=$(realpath "$(dirname "${BASH_SOURCE[0]}")/..")
+
 # Install Xray for Mac
-ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/.."
 THIRD_PARTY="$ROOT/third_party"
 DIRECTORY="${THIRD_PARTY}/xray-macos-arm64"
 ZIP_FILE="${DIRECTORY}.zip"

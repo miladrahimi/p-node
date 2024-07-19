@@ -1,0 +1,12 @@
+[Unit]
+Description=THE_NAME Service
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=THE_DIR
+ExecStart=THE_PATH start
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
