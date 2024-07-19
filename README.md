@@ -12,7 +12,7 @@ apt-get -y install make wget curl vim git openssl cron
 if command -v ufw &> /dev/null; then ufw disable; fi
 ```
 
-2. Install BBR
+2. Install BBR (Optional)
 
 ```shell
 echo "net.core.default_qdisc=fq" >> /etc/sysctl.conf
@@ -29,7 +29,7 @@ cd "p-node-${i}"
 make setup
 ```
 
-5. Display information required for P-Manager
+4. Display information required for P-Manager
 
 ```shell
 make info
@@ -37,11 +37,33 @@ make info
 
 ### Update
 
-You don't need to update it manually, as automatic updates are configured through cron jobs by default.
-If you require earlier updates, run the following command:
+Automatic updates are set up through cron jobs by default. For earlier updates, run the command below:
 
 ``` shell
 make update
+```
+
+### Status and Logs
+
+The application service is named after its directory, with `p-node` as the default in `systemd`.
+It allows running multiple instances on a single server by placing the application in different directories with different names (like `p-node-2` and `p-node-3`).
+
+To check the status of the application, execute the following command:
+
+```shell
+systemctl status p-node
+```
+
+To view the application's standard outputs, execute the command below:
+
+```shell
+journalctl -f -u p-node
+```
+
+The application logs will be stored in the following directory:
+
+```shell
+./storage/logs
 ```
 
 ### Requirements
