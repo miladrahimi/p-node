@@ -12,14 +12,7 @@ apt-get -y install make wget curl vim git openssl cron
 if command -v ufw &> /dev/null; then ufw disable; fi
 ```
 
-2. Install Docker
-
-```shell
-wget -O install-docker.sh https://get.docker.com
-chmod +x install-docker.sh && ./install-docker.sh && rm install-docker.sh
-```
-
-3. Install BBR
+2. Install BBR
 
 ```shell
 echo "net.core.default_qdisc=fq" >> /etc/sysctl.conf
@@ -27,14 +20,13 @@ echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf
 sysctl -p
 ```
 
-4. Install P-Node
+3. Install P-Node
 
 ```shell
 for ((i=1;;i++)); do [ ! -d "p-node-${i}" ] && break; done
 git clone https://github.com/miladrahimi/p-node.git "p-node-${i}"
 cd "p-node-${i}"
 make setup
-docker compose up -d
 ```
 
 5. Display information required for P-Manager
