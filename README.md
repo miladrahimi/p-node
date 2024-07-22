@@ -9,7 +9,6 @@
 ```shell
 apt-get -y update
 apt-get -y install make wget curl vim git openssl cron
-if command -v ufw &> /dev/null; then ufw disable; fi
 ```
 
 2. Install BBR (Optional)
