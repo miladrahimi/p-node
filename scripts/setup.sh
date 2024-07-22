@@ -6,11 +6,6 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 1
 fi
 
-# TODO: Remote this
-if type docker >/dev/null 2>&1; then
-    docker compose down
-fi
-
 # Detect basic variables
 ROOT=$(realpath "$(dirname "${BASH_SOURCE[0]}")/..")
 SERVICE_NAME=$(basename "$ROOT")

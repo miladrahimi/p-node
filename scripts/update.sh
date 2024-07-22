@@ -6,10 +6,6 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 1
 fi
 
-# TODO: Remote this
-SETUP_SCRIPT="$(dirname "$0")/setup.sh"
-$SETUP_SCRIPT
-
 # Store update time
 rm -f ./storage/logs/*.log
 date '+%Y-%m-%d %H:%M:%S' > ./storage/app/update.txt
