@@ -9,7 +9,6 @@
 ```shell
 apt-get -y update
 apt-get -y install make wget curl vim git openssl cron
-if command -v ufw &> /dev/null; then ufw disable; fi
 ```
 
 2. Install BBR (Optional)
@@ -51,13 +50,13 @@ It allows running multiple instances on a single server by placing the applicati
 To check the status of the application, execute the following command:
 
 ```shell
-systemctl status p-node
+systemctl status p-node-1
 ```
 
 To view the application's standard outputs, execute the command below:
 
 ```shell
-journalctl -f -u p-node
+journalctl -f -u p-node-1
 ```
 
 The application logs will be stored in the following directory:
