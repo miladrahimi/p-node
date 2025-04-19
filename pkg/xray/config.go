@@ -42,7 +42,7 @@ type OutboundServer struct {
 }
 
 type OutboundSettings struct {
-	Servers []*OutboundServer `json:"servers" validate:"omitempty,dive"`
+	Servers []*OutboundServer `json:"servers,omitempty" validate:"omitempty,dive"`
 }
 
 type StreamSettings struct {
@@ -215,6 +215,7 @@ func NewConfig(logLevel string) *Config {
 		Outbounds: []*Outbound{
 			{
 				Tag:      "out",
+				Settings: &OutboundSettings{},
 				Protocol: "freedom",
 			},
 		},
