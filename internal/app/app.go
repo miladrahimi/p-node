@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"github.com/cockroachdb/errors"
 	"github.com/miladrahimi/p-node/internal/config"
 	"github.com/miladrahimi/p-node/internal/database"
 	"github.com/miladrahimi/p-node/internal/http/server"
@@ -42,20 +43,30 @@ func New() (a *App, err error) {
 	a.Database = database.New(a.Logger)
 	a.HttpServer = server.New(a.Config, a.Logger, a.Xray, a.Database)
 
-	a.Logger.Info("app: constructed successfully")
+	a.Logger.Debug("app: constructed successfully")
 
-	a.setupSignalListener()
+	a.startSignalListener()
 
 	return a, nil
 }
 
-func (a *App) Init() {
-	a.Database.Init()
-	a.Xray.Init()
-	a.Logger.Info("app: initialized successfully")
+func (a *App) Start() error {
+	if err := a.Database.Init(); err != nil {
+		return errors.WithStack(err)
+	}
+	if err := a.Xray.Init(); err != nil {
+		return errors.WithStack(err)
+	}
+	if err := a.Xray.Run(); err != nil {
+		return errors.WithStack(err)
+	}
+	a.HttpServer.Run()
+
+	a.Logger.Info("app: started successfully")
+	return nil
 }
 
-func (a *App) setupSignalListener() {
+func (a *App) startSignalListener() {
 	go func() {
 		signalChannel := make(chan os.Signal, 2)
 		signal.Notify(signalChannel, os.Interrupt, syscall.SIGTERM)
@@ -83,7 +94,9 @@ func (a *App) Close() {
 		a.HttpServer.Close()
 	}
 	if a.Xray != nil {
-		a.Xray.Close()
+		if err := a.Xray.Close(); err != nil {
+			a.Logger.Error("xray: cannot close", zap.Error(errors.WithStack(err)))
+		}
 	}
 	if a.Logger != nil {
 		a.Logger.Close()

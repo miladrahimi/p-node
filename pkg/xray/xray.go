@@ -28,62 +28,67 @@ type Xray struct {
 	context    context.Context
 }
 
-func (x *Xray) loadConfig() {
+func (x *Xray) loadConfig() error {
 	x.l.Debug("xray: loading config file...")
-	defer x.l.Debug("xray: config file loaded")
 
 	if !utils.FileExist(x.configPath) {
-		x.l.Debug("xray: config file not found")
-		return
+		x.l.Debug("xray: no config file found, it is fresh")
+		return nil
 	}
-
-	defer x.l.Debug("xray: config file loaded")
 
 	content, err := os.ReadFile(x.configPath)
 	if err != nil {
-		x.l.Fatal("xray: cannot load config file", zap.Error(errors.WithStack(err)))
+		return errors.WithStack(err)
 	}
 
 	var newConfig Config
-	err = json.Unmarshal(content, &newConfig)
-	if err != nil {
-		x.l.Fatal("xray: cannot unmarshal loaded config file", zap.Error(errors.WithStack(err)))
+	if err = json.Unmarshal(content, &newConfig); err != nil {
+		return errors.WithStack(err)
 	}
 
 	if err = newConfig.Validate(); err != nil {
-		x.l.Fatal("xray: cannot validate loaded config file", zap.Error(errors.WithStack(err)))
+		return errors.WithStack(err)
 	}
 
 	x.config = &newConfig
+	x.l.Debug("xray: config file loaded")
+	return nil
 }
 
-func (x *Xray) saveConfig() {
+func (x *Xray) saveConfig() error {
 	x.l.Debug("xray: saving config file...")
-	defer x.l.Debug("xray: config file saved")
 
 	content, err := json.Marshal(x.config)
 	if err != nil {
-		x.l.Fatal("xray: cannot marshal config data", zap.Error(errors.WithStack(err)))
+		return errors.WithStack(err)
 	}
 
-	if err = os.WriteFile(x.configPath, content, 0755); err != nil {
-		x.l.Fatal("xray: cannot save config file", zap.Error(errors.WithStack(err)))
+	err = os.WriteFile(x.configPath, content, 0755)
+	if err == nil {
+		x.l.Debug("xray: config file saved")
 	}
+	return errors.WithStack(err)
 }
 
-func (x *Xray) Run() {
+func (x *Xray) Run() error {
 	x.l.Debug("xray: running...")
 
 	x.locker.Lock()
 	defer x.locker.Unlock()
 
-	x.saveConfig()
+	if err := x.saveConfig(); err != nil {
+		return errors.WithStack(err)
+	}
+
 	go x.runCore()
-	x.connect()
+
+	err := x.connect()
+	return errors.WithStack(err)
 }
 
-func (x *Xray) Init() {
-	x.loadConfig()
+func (x *Xray) Init() error {
+	err := x.loadConfig()
+	return errors.WithStack(err)
 }
 
 func (x *Xray) runCore() {
@@ -105,13 +110,18 @@ func (x *Xray) runCore() {
 
 func (x *Xray) Restart() {
 	x.l.Info("xray: restarting...")
-	x.Close()
-	x.Run()
+
+	if err := x.Close(); err != nil {
+		x.l.Error("xray: cannot close", zap.Error(errors.WithStack(err)))
+	}
+
+	if err := x.Run(); err != nil {
+		x.l.Fatal("xray: cannot run again", zap.Error(errors.WithStack(err)))
+	}
 }
 
-func (x *Xray) Close() {
+func (x *Xray) Close() error {
 	x.l.Debug("xray: closing...")
-	defer x.l.Info("xray: closed")
 
 	x.locker.Lock()
 	defer x.locker.Unlock()
@@ -119,7 +129,7 @@ func (x *Xray) Close() {
 	if x.connection != nil {
 		x.l.Debug("xray: disconnecting the api connection...")
 		if err := x.connection.Close(); err != nil {
-			x.l.Debug("xray: cannot close the api connection", zap.Error(err))
+			x.l.Debug("xray: cannot close the api connection", zap.Error(errors.WithStack(err)))
 		} else {
 			x.l.Debug("xray: the api connection closed")
 		}
@@ -128,19 +138,22 @@ func (x *Xray) Close() {
 	if x.command != nil && x.command.Process != nil {
 		x.l.Debug("xray: killing the process...")
 		if err := x.command.Process.Kill(); err != nil {
-			x.l.Error("xray: cannot kill the process", zap.Error(errors.WithStack(err)))
+			return errors.WithStack(err)
 		} else {
 			x.l.Debug("xray: the process killed")
 		}
 	}
+
+	x.l.Info("xray: closed")
+	return nil
 }
 
-func (x *Xray) connect() {
+func (x *Xray) connect() error {
 	x.l.Debug("xray: connecting to api...")
 
 	inbound := x.config.FindInbound("api")
 	if inbound == nil {
-		x.l.Fatal("xray: cannot find api inbound")
+		return errors.New("no inbound inbound")
 	}
 
 	c, cancel := context.WithTimeout(x.context, 10*time.Second)
@@ -152,8 +165,7 @@ func (x *Xray) connect() {
 	for {
 		select {
 		case <-c.Done():
-			x.l.Fatal("xray: connection to api timed out", zap.Error(errors.WithStack(x.context.Err())))
-			return
+			return errors.New("connection to Xray api timed out")
 		default:
 			time.Sleep(time.Second)
 			x.connection, err = grpc.NewClient(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -161,7 +173,7 @@ func (x *Xray) connect() {
 				x.l.Debug("xray: trying to connect to api", zap.Error(errors.WithStack(err)))
 			} else {
 				x.l.Debug("xray: connected to api successfully")
-				return
+				return nil
 			}
 		}
 	}
@@ -175,13 +187,13 @@ func (x *Xray) SetConfig(config *Config) {
 	x.config = config
 }
 
-func (x *Xray) QueryStats() []*stats.Stat {
+func (x *Xray) QueryStats() ([]*stats.Stat, error) {
 	client := stats.NewStatsServiceClient(x.connection)
 	qs, err := client.QueryStats(context.Background(), &stats.QueryStatsRequest{Reset_: true})
 	if err != nil {
-		x.l.Error("xray: cannot fetch query stats", zap.Error(errors.WithStack(err)))
+		return nil, errors.WithStack(err)
 	}
-	return qs.GetStat()
+	return qs.GetStat(), nil
 }
 
 func New(c context.Context, logger *logger.Logger, logLevel, configPath, binaryPath string) *Xray {

@@ -1,20 +1,20 @@
-.PHONY: dev-setup
-dev-setup:
-	@./scripts/dev-setup.sh
+.PHONY: local-setup
+local-setup:
+	@./scripts/local-setup.sh
 
-.PHONY: dev-run
-dev-run:
+.PHONY: local-run
+local-run:
 	@go run main.go start
 
-.PHONY: dev-fresh
-dev-fresh:
+.PHONY: local-fresh
+local-fresh:
 	@rm -f storage/app/*.txt
 	@rm -f storage/app/*.json
 	@rm -f storage/database/*.json
 	@rm -f storage/logs/*.log
 
-.PHONY: dev-clean
-dev-clean:
+.PHONY: local-clean
+local-clean:
 	@rm -f storage/logs/*.log
 
 .PHONY: schedule-reboot
