@@ -214,7 +214,7 @@ func NewConfig(logLevel string) *Config {
 		},
 		Outbounds: []*Outbound{
 			{
-				Tag:      "freedom",
+				Tag:      "out",
 				Protocol: "freedom",
 			},
 		},
