@@ -91,7 +91,9 @@ func (a *App) Close() {
 	defer a.Logger.Info("app: closed")
 
 	if a.HttpServer != nil {
-		a.HttpServer.Close()
+		if err := a.HttpServer.Close(); err != nil {
+			a.Logger.Error("http server: cannot close", zap.Error(errors.WithStack(err)))
+		}
 	}
 	if a.Xray != nil {
 		if err := a.Xray.Close(); err != nil {
