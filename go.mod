@@ -12,7 +12,7 @@ require (
 	github.com/spf13/cobra v1.9.1
 	github.com/xtls/xray-core v1.250306.0
 	go.uber.org/zap v1.27.0
-	google.golang.org/grpc v1.71.1
+	google.golang.org/grpc v1.72.0
 )
 
 require (
