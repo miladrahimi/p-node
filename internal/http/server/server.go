@@ -2,8 +2,8 @@ package server
 
 import (
 	"context"
-	"errors"
 	"fmt"
+	"github.com/cockroachdb/errors"
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
 	"github.com/miladrahimi/p-node/internal/config"
@@ -46,21 +46,22 @@ func (s *Server) Run() {
 	go func() {
 		address := fmt.Sprintf("%s:%d", "0.0.0.0", s.database.Data.Settings.HttpPort)
 		if err := s.engine.Start(address); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			s.l.Fatal("http: server: cannot start", zap.String("address", address), zap.Error(err))
+			s.l.Fatal("http server: cannot start", zap.String("address", address), zap.Error(err))
 		}
 	}()
 }
 
 // Close closes the HTTP Server.
-func (s *Server) Close() {
+func (s *Server) Close() error {
 	c, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	if err := s.engine.Shutdown(c); err != nil {
-		s.l.Error("http: server: cannot close", zap.Error(err))
-	} else {
-		s.l.Debug("http: server: closed successfully")
+		return errors.WithStack(err)
 	}
+
+	s.l.Debug("http server: closed successfully")
+	return nil
 }
 
 // New creates a new instance of HTTP Server.
