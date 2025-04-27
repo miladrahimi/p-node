@@ -11,13 +11,15 @@ func init() {
 		Use: "start",
 		Run: func(_ *cobra.Command, _ []string) {
 			a, err := app.New()
-			defer a.Close()
+			if a != nil {
+				defer a.Close()
+			}
 			if err != nil {
 				panic(fmt.Sprintf("%+v\n", err))
 			}
-			a.Init()
-			a.Xray.Run()
-			a.HttpServer.Run()
+			if err = a.Start(); err != nil {
+				panic(fmt.Sprintf("%+v\n", err))
+			}
 			a.Wait()
 		},
 	})

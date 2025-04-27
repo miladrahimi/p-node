@@ -14,7 +14,7 @@ const defaultConfigPath = "configs/main.defaults.json"
 const envConfigPath = "configs/main.json"
 
 const AppName = "P-Node"
-const AppVersion = "v1.3.3"
+const AppVersion = "v1.4.0"
 
 const XrayConfigPath = "storage/app/xray.json"
 const XrayLogLevel = "debug"
@@ -38,12 +38,12 @@ type Config struct {
 	} `json:"logger"`
 }
 
-func (c *Config) String() string {
+func (c *Config) toString() (string, error) {
 	j, err := json.Marshal(c)
 	if err != nil {
-		return err.Error()
+		return "", errors.WithStack(err)
 	}
-	return string(j)
+	return string(j), nil
 }
 
 func (c *Config) Init() (err error) {
@@ -66,7 +66,11 @@ func (c *Config) Init() (err error) {
 		}
 	}
 
-	fmt.Println("Config:", c.String())
+	configString, err := c.toString()
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	fmt.Println("Config:", configString)
 
 	return errors.WithStack(validator.New().Struct(c))
 }

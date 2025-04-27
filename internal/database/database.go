@@ -7,7 +7,6 @@ import (
 	"github.com/labstack/gommon/random"
 	"github.com/miladrahimi/p-node/internal/utils"
 	"github.com/miladrahimi/p-node/pkg/logger"
-	"go.uber.org/zap"
 	"math/rand"
 	"os"
 	"sync"
@@ -25,48 +24,48 @@ type Database struct {
 	Data   *Data
 }
 
-func (d *Database) Init() {
+func (d *Database) Init() error {
 	d.locker.Lock()
 	defer d.locker.Unlock()
 
-	if !utils.FileExist(Path) {
-		if !utils.PortFree(d.Data.Settings.HttpPort) {
-			var err error
-			if d.Data.Settings.HttpPort, err = utils.FreePort(); err != nil {
-				d.l.Fatal("database: cannot find port for http", zap.Error(errors.WithStack(err)))
-			}
-		}
-		d.Save()
-	} else {
-		d.Load()
+	if utils.FileExist(Path) {
+		return d.Load()
 	}
+
+	if !utils.PortFree(d.Data.Settings.HttpPort) {
+		var err error
+		if d.Data.Settings.HttpPort, err = utils.FreePort(); err != nil {
+			return errors.Wrap(err, "cannot find free port")
+		}
+	}
+
+	err := d.Save()
+	return errors.WithStack(err)
 }
 
-func (d *Database) Load() {
+func (d *Database) Load() error {
 	content, err := os.ReadFile(Path)
 	if err != nil {
-		d.l.Fatal("database: cannot load file", zap.String("file", Path), zap.Error(errors.WithStack(err)))
+		return errors.WithStack(err)
 	}
 
 	err = json.Unmarshal(content, d.Data)
 	if err != nil {
-		d.l.Fatal("database: cannot unmarshall data", zap.Error(err))
+		return errors.WithStack(err)
 	}
 
-	if err = validator.New().Struct(d); err != nil {
-		d.l.Fatal("database: cannot validate data", zap.Error(err))
-	}
+	err = validator.New().Struct(d)
+	return errors.WithStack(err)
 }
 
-func (d *Database) Save() {
+func (d *Database) Save() error {
 	content, err := json.Marshal(d.Data)
 	if err != nil {
-		d.l.Fatal("database: cannot marshal data", zap.Error(err))
+		return errors.WithStack(err)
 	}
 
-	if err = os.WriteFile(Path, content, 0755); err != nil {
-		d.l.Fatal("database: cannot save file", zap.String("file", Path), zap.Error(err))
-	}
+	err = os.WriteFile(Path, content, 0755)
+	return errors.WithStack(err)
 }
 
 func New(l *logger.Logger) *Database {
