@@ -31,7 +31,9 @@ setup:
 
 .PHONY: update
 update:
-	@git reset --hard HEAD^
+	@git fetch --all
+	@git reset --hard
+	@git clean -fd
 	@git pull
 	@./scripts/setup.sh
 	@./scripts/update.sh
