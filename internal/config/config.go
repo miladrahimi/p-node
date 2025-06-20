@@ -14,7 +14,7 @@ const defaultConfigPath = "configs/main.defaults.json"
 const envConfigPath = "configs/main.json"
 
 const AppName = "P-Node"
-const AppVersion = "v1.4.0"
+const AppVersion = "v1.7.0"
 
 const XrayConfigPath = "storage/app/xray.json"
 const XrayLogLevel = "debug"
@@ -33,9 +33,15 @@ func XrayBinaryPath() string {
 
 type Config struct {
 	Logger struct {
-		Level  string `json:"level"`
-		Format string `json:"format"`
-	} `json:"logger"`
+		Level  string `json:"level" validate:"required,oneof=debug info warn error"`
+		Format string `json:"format" validate:"required,oneof='2006-01-02 15:04:05.000'"`
+	} `json:"logger" validate:"required"`
+	HttpClient struct {
+		Timeout int `json:"timeout" validate:"required,min=10,max=60000"`
+	} `json:"http_client" validate:"required"`
+	Syncer struct {
+		Interval int `json:"interval" validate:"required,gt=0,lt=300"`
+	} `json:"syncer" validate:"required"`
 }
 
 func (c *Config) toString() (string, error) {

@@ -3,6 +3,7 @@ package xray
 import (
 	"github.com/cockroachdb/errors"
 	"github.com/go-playground/validator/v10"
+	"reflect"
 )
 
 type Log struct {
@@ -191,6 +192,10 @@ func (c *Config) Validate() error {
 		return errors.New("xray: config: api inbound not found")
 	}
 	return errors.WithStack(validator.New(validator.WithRequiredStructEnabled()).Struct(c))
+}
+
+func (c *Config) Equals(other *Config) bool {
+	return reflect.DeepEqual(c, other)
 }
 
 func NewConfig(logLevel string) *Config {
