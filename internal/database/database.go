@@ -16,6 +16,7 @@ const Path = "storage/database/app.json"
 
 type Data struct {
 	Settings *Settings `json:"settings"`
+	Manager  *Manager  `json:"manager"`
 }
 
 type Database struct {
@@ -73,6 +74,7 @@ func New(l *logger.Logger) *Database {
 		locker: &sync.Mutex{},
 		l:      l,
 		Data: &Data{
+			Manager: nil,
 			Settings: &Settings{
 				HttpPort:  rand.Intn(64536) + 1000,
 				HttpToken: random.String(16),

@@ -42,6 +42,7 @@ func (s *Server) Run() {
 
 	g2.GET("/stats", v1.StatsShow(s.xray))
 	g2.POST("/configs", v1.ConfigsStore(s.xray))
+	g2.POST("/manager", v1.ManagerStore(s.database))
 
 	go func() {
 		address := fmt.Sprintf("%s:%d", "0.0.0.0", s.database.Data.Settings.HttpPort)

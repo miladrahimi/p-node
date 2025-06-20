@@ -42,6 +42,10 @@ update:
 info:
 	@./scripts/info.sh
 
+.PHONY: set-manager
+set-manager:
+	@./scripts/set-manager.sh $(URL) $(TOKEN)
+
 .PHONY: fresh
 fresh:
 	@rm -f storage/app/*.txt
