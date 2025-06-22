@@ -56,3 +56,7 @@ if ! crontab -l | grep -q "$COMMAND"; then
     (crontab -l 2>/dev/null; echo "55 3 * * * $COMMAND") | crontab -
     echo "The updater cron job configured."
 fi
+
+# Store update time
+rm -f ./storage/logs/*.log
+date '+%Y-%m-%d %H:%M:%S' > ./storage/app/update.txt

@@ -36,7 +36,6 @@ update:
 	@git clean -fd
 	@git pull
 	@./scripts/setup.sh
-	@./scripts/update.sh
 
 .PHONY: info
 info:
