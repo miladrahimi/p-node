@@ -44,7 +44,7 @@ info:
 
 .PHONY: set-manager
 set-manager:
-	@./scripts/set-manager.sh $(URL) $(TOKEN)
+	@./scripts/set-manager.sh "$(URL)" "$(TOKEN)"
 
 .PHONY: fresh
 fresh:

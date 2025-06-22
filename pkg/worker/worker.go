@@ -1,4 +1,4 @@
-package syncer
+package worker
 
 import (
 	"context"
@@ -9,7 +9,7 @@ type Worker struct {
 	context  context.Context
 	interval time.Duration
 	body     func()
-	callback func()
+	stop     func()
 }
 
 func (w *Worker) Start() {
@@ -18,7 +18,7 @@ func (w *Worker) Start() {
 		for {
 			select {
 			case <-w.context.Done():
-				w.callback()
+				w.stop()
 				return
 			case <-ticker.C:
 				w.body()
@@ -27,6 +27,6 @@ func (w *Worker) Start() {
 	}()
 }
 
-func newWorker(c context.Context, interval time.Duration, body func(), callback func()) *Worker {
-	return &Worker{context: c, interval: interval, body: body, callback: callback}
+func New(c context.Context, interval time.Duration, body func(), stop func()) *Worker {
+	return &Worker{context: c, interval: interval, body: body, stop: stop}
 }

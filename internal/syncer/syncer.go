@@ -9,6 +9,7 @@ import (
 	"github.com/miladrahimi/p-node/internal/database"
 	"github.com/miladrahimi/p-node/pkg/http/client"
 	"github.com/miladrahimi/p-node/pkg/logger"
+	"github.com/miladrahimi/p-node/pkg/worker"
 	"github.com/miladrahimi/p-node/pkg/xray"
 	"go.uber.org/zap"
 	"time"
@@ -23,10 +24,12 @@ type Syncer struct {
 	database *database.Database
 }
 
+const workerInterval = 30 * time.Second
+
 func (s *Syncer) Run() {
 	s.l.Info("syncer: running...")
 
-	go newWorker(s.context, time.Duration(s.config.Syncer.Interval)*time.Second, func() {
+	go worker.New(s.context, workerInterval, func() {
 		s.l.Info("syncer: running worker for sync...")
 		if err := s.Sync(); err != nil {
 			s.l.Error("syncer: cannot sync", zap.Error(errors.WithStack(err)))

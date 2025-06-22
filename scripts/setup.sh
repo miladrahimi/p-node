@@ -23,11 +23,6 @@ if [ ! -f "$BINARY_PATH" ]; then
     exit 1
 fi
 
-# Create the config file
-if [ ! -f "$ROOT"/configs/main.json ]; then
-		cp "$ROOT"/configs/main.defaults.json "$ROOT"/configs/main.json;
-fi
-
 # Setup Systemd
 SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME.service"
 SERVICE_TEMPLATE="$ROOT/scripts/service.template"

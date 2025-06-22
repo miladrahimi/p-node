@@ -46,7 +46,7 @@ func New() (a *App, err error) {
 	a.Xray = xray.New(a.Context, a.Logger, config.XrayLogLevel, config.XrayConfigPath, config.XrayBinaryPath())
 	a.Database = database.New(a.Logger)
 	a.HttpServer = server.New(a.Config, a.Logger, a.Xray, a.Database)
-	a.HttpClient = client.New(a.Config.HttpClient.Timeout, config.AppName, config.AppVersion)
+	a.HttpClient = client.New(config.HttpTimeout, config.AppName, config.AppVersion)
 	a.Syncer = syncer.New(a.Context, a.Logger, a.Config, a.Database, a.HttpClient, a.Xray)
 	a.Logger.Debug("app: constructed successfully")
 

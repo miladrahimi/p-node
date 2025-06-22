@@ -80,7 +80,6 @@ type Rule struct {
 	InboundTag  []string `json:"inboundTag" validate:"required"`
 	OutboundTag string   `json:"outboundTag,omitempty"`
 	BalancerTag string   `json:"balancerTag,omitempty"`
-	Type        string   `json:"type" validate:"required"`
 	Domain      []string `json:"domain,omitempty"`
 }
 
@@ -94,12 +93,10 @@ type Balancer struct {
 }
 
 type Routing struct {
-	DomainStrategy string           `json:"domainStrategy" validate:"required"`
-	DomainMatcher  string           `json:"domainMatcher" validate:"required"`
-	Strategy       string           `json:"strategy" validate:"required"`
-	Settings       *RoutingSettings `json:"settings,omitempty"`
-	Rules          []*Rule          `json:"rules,omitempty" validate:"omitempty,dive"`
-	Balancers      []*Balancer      `json:"balancers,omitempty" validate:"omitempty,dive"`
+	DomainStrategy string      `json:"domainStrategy" validate:"required"`
+	DomainMatcher  string      `json:"domainMatcher" validate:"required"`
+	Rules          []*Rule     `json:"rules,omitempty" validate:"omitempty,dive"`
+	Balancers      []*Balancer `json:"balancers,omitempty" validate:"omitempty,dive"`
 }
 
 type Reverse struct {
@@ -248,14 +245,10 @@ func NewConfig(logLevel string) *Config {
 		Routing: &Routing{
 			DomainStrategy: "AsIs",
 			DomainMatcher:  "hybrid",
-			Strategy:       "rules",
-			Settings: &RoutingSettings{
-				Rules: []*Rule{
-					{
-						Type:        "field",
-						InboundTag:  []string{"api"},
-						OutboundTag: "api",
-					},
+			Rules: []*Rule{
+				{
+					InboundTag:  []string{"api"},
+					OutboundTag: "api",
 				},
 			},
 			Balancers: []*Balancer{},
