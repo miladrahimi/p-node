@@ -8,7 +8,7 @@
 
 ```shell
 apt-get -y update
-apt-get -y install make wget curl vim git openssl cron
+apt-get -y install make wget jq curl vim git openssl cron
 ```
 
 2. Install BBR (Optional)
