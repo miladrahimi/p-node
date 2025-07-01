@@ -65,6 +65,8 @@ func (s *Syncer) fetchConfig(manager *database.Manager) (*xray.Config, error) {
 		return nil, errors.WithStack(err)
 	}
 
+	fmt.Println(string(response))
+
 	var c xray.Config
 	err = json.Unmarshal(response, &c)
 	if err != nil {

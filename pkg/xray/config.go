@@ -109,6 +109,11 @@ type ReverseItem struct {
 	Domain string `json:"domain"  validate:"required"`
 }
 
+type Metadata struct {
+	UpdatedAt string `json:"updatedAt"`
+	UpdatedBy string `json:"UpdatedBy"`
+}
+
 type Config struct {
 	Log       *Log                   `json:"log" validate:"required"`
 	Inbounds  []*Inbound             `json:"inbounds" validate:"required,dive"`
@@ -119,6 +124,7 @@ type Config struct {
 	Policy    *Policy                `json:"policy" validate:"required"`
 	Routing   *Routing               `json:"routing" validate:"required"`
 	Reverse   *Reverse               `json:"reverse,omitempty"`
+	Metadata  *Metadata              `json:"_metadata,omitempty"`
 }
 
 func (c *Config) MakeShadowsocksInbound(tag, password, method, network string, port int, clients []*Client) *Inbound {
