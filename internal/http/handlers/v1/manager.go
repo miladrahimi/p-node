@@ -36,8 +36,7 @@ func ManagerStore(d *database.Database) echo.HandlerFunc {
 			}
 		}
 
-		err := d.Save()
-		if err != nil {
+		if err := d.Save(); err != nil {
 			return errors.WithStack(err)
 		}
 

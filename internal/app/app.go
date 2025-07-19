@@ -4,9 +4,9 @@ import (
 	"context"
 	"github.com/cockroachdb/errors"
 	"github.com/miladrahimi/p-node/internal/config"
+	"github.com/miladrahimi/p-node/internal/coordinator"
 	"github.com/miladrahimi/p-node/internal/database"
 	"github.com/miladrahimi/p-node/internal/http/server"
-	"github.com/miladrahimi/p-node/internal/syncer"
 	"github.com/miladrahimi/p-node/pkg/http/client"
 	"github.com/miladrahimi/p-node/pkg/logger"
 	"github.com/miladrahimi/p-node/pkg/xray"
@@ -25,7 +25,7 @@ type App struct {
 	HttpServer *server.Server
 	HttpClient *client.Client
 	Xray       *xray.Xray
-	Syncer     *syncer.Syncer
+	Syncer     *coordinator.Coordinator
 	Database   *database.Database
 }
 
@@ -47,7 +47,7 @@ func New() (a *App, err error) {
 	a.Database = database.New(a.Logger)
 	a.HttpServer = server.New(a.Config, a.Logger, a.Xray, a.Database)
 	a.HttpClient = client.New(config.HttpTimeout, config.AppName, config.AppVersion)
-	a.Syncer = syncer.New(a.Context, a.Logger, a.Config, a.Database, a.HttpClient, a.Xray)
+	a.Syncer = coordinator.New(a.Context, a.Logger, a.Config, a.Database, a.HttpClient, a.Xray)
 	a.Logger.Debug("app: constructed successfully")
 
 	a.startSignalListener()

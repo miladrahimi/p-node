@@ -1,9 +1,9 @@
 package xray
 
 import (
+	"encoding/json"
 	"github.com/cockroachdb/errors"
 	"github.com/go-playground/validator/v10"
-	"reflect"
 )
 
 type Log struct {
@@ -198,7 +198,17 @@ func (c *Config) Validate() error {
 }
 
 func (c *Config) Equals(other *Config) bool {
-	return reflect.DeepEqual(c, other)
+	json1, err := json.Marshal(c)
+	if err != nil {
+		return false
+	}
+
+	json2, err := json.Marshal(other)
+	if err != nil {
+		return false
+	}
+
+	return string(json1) == string(json2)
 }
 
 func NewConfig(logLevel string) *Config {
