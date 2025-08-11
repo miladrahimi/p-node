@@ -10,9 +10,9 @@ require (
 	github.com/labstack/echo/v4 v4.13.4
 	github.com/labstack/gommon v0.4.2
 	github.com/spf13/cobra v1.9.1
-	github.com/xtls/xray-core v1.250608.0
+	github.com/xtls/xray-core v1.250803.0
 	go.uber.org/zap v1.27.0
-	google.golang.org/grpc v1.73.0
+	google.golang.org/grpc v1.74.2
 )
 
 require (
