@@ -1,6 +1,6 @@
 module github.com/miladrahimi/p-node
 
-go 1.24
+go 1.24.0
 
 toolchain go1.24.2
 
@@ -12,7 +12,7 @@ require (
 	github.com/spf13/cobra v1.9.1
 	github.com/xtls/xray-core v1.250608.0
 	go.uber.org/zap v1.27.0
-	google.golang.org/grpc v1.73.0
+	google.golang.org/grpc v1.76.0
 )
 
 require (
@@ -42,6 +42,6 @@ require (
 	golang.org/x/sys v0.34.0 // indirect
 	golang.org/x/text v0.27.0 // indirect
 	golang.org/x/time v0.12.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250715232539-7130f93afb79 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250804133106-a7a43d27e69b // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
 )
