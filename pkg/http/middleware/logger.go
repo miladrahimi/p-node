@@ -2,13 +2,15 @@ package middleware
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/labstack/echo/v4"
 	"github.com/miladrahimi/p-node/pkg/logger"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"time"
 )
 
+// Logger is a middleware that logs HTTP requests and responses.
 func Logger(l *logger.Logger) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ctx echo.Context) error {

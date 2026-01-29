@@ -2,12 +2,14 @@ package v1
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/labstack/echo/v4"
 	"github.com/miladrahimi/p-node/internal/utils"
 	"github.com/miladrahimi/p-node/pkg/xray"
-	"net/http"
 )
 
+// ConfigsStore stores the Xray configs.
 func ConfigsStore(x *xray.Xray) echo.HandlerFunc {
 	return func(c echo.Context) (err error) {
 		var config xray.Config

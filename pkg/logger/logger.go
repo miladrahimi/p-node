@@ -1,12 +1,14 @@
 package logger
 
 import (
+	"syscall"
+
 	"github.com/cockroachdb/errors"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"syscall"
 )
 
+// Logger is a wrapper around zap.Logger.
 type Logger struct {
 	e        *zap.Logger
 	shutdown chan struct{}
@@ -14,14 +16,17 @@ type Logger struct {
 	format   string
 }
 
-func (l *Logger) Init() (err error) {
-	level := zap.NewAtomicLevel()
-	if err = level.UnmarshalText([]byte(l.level)); err != nil {
-		return errors.Wrapf(err, "invalid log level '%s'", l.level)
+// New creates a new instance of Logger.
+func New(level, format string, closer chan struct{}) (logger *Logger, err error) {
+	l := &Logger{e: nil, shutdown: closer, level: level, format: format}
+
+	logLevel := zap.NewAtomicLevel()
+	if err = logLevel.UnmarshalText([]byte(l.level)); err != nil {
+		return nil, errors.Wrapf(err, "invalid log level '%s'", logLevel)
 	}
 
 	l.e, err = zap.Config{
-		Level:             level,
+		Level:             logLevel,
 		Development:       false,
 		Encoding:          "json",
 		DisableStacktrace: true,
@@ -40,38 +45,40 @@ func (l *Logger) Init() (err error) {
 			LineEnding:     zapcore.DefaultLineEnding,
 		},
 	}.Build()
-	return errors.Wrap(err, "cannot build logger")
+	return l, errors.Wrap(err, "cannot build logger")
 }
 
+// Debug logs a debug message.
 func (l *Logger) Debug(msg string, fields ...zap.Field) {
 	l.e.Debug(msg, fields...)
 }
 
+// Info logs an info message.
 func (l *Logger) Info(msg string, fields ...zap.Field) {
 	l.e.Info(msg, fields...)
 }
 
+// Error logs an error message.
 func (l *Logger) Error(msg string, fields ...zap.Field) {
 	l.e.Error(msg, fields...)
 }
 
+// Fatal logs a fatal message and shuts down the application.
 func (l *Logger) Fatal(msg string, fields ...zap.Field) {
 	l.e.Error(msg, fields...)
 	l.shutdown <- struct{}{}
 }
 
+// With creates a new logger with the given fields.
 func (l *Logger) With(fields ...zap.Field) *zap.Logger {
 	return l.e.With(fields...)
 }
 
+// Close closes the logger.
 func (l *Logger) Close() {
 	if err := l.e.Sync(); err != nil && !errors.Is(err, syscall.ENOTTY) {
 		l.e.Error("cannot close logger", zap.Error(errors.WithStack(err)))
 	} else {
 		l.e.Info("logger: closed successfully")
 	}
-}
-
-func New(level, format string, closer chan struct{}) (logger *Logger) {
-	return &Logger{e: nil, shutdown: closer, level: level, format: format}
 }

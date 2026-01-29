@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
+
 	"github.com/cockroachdb/errors"
 	"github.com/miladrahimi/p-node/internal/config"
 	"github.com/miladrahimi/p-node/internal/database"
@@ -12,7 +14,6 @@ import (
 	"github.com/miladrahimi/p-node/pkg/worker"
 	"github.com/miladrahimi/p-node/pkg/xray"
 	"go.uber.org/zap"
-	"time"
 )
 
 type Coordinator struct {
@@ -27,14 +28,12 @@ type Coordinator struct {
 func (c *Coordinator) Run() {
 	c.l.Info("coordinator: running...")
 
-	go worker.New(c.context, 30*time.Second, func() {
+	go worker.New("SyncWithManager", c.l, 30*time.Second, func() {
 		c.l.Info("coordinator: running worker for sync...")
 		if err := c.Sync(); err != nil {
 			c.l.Error("coordinator: cannot sync", zap.Error(errors.WithStack(err)))
 		}
-	}, func() {
-		c.l.Debug("coordinator: worker for sync stopped")
-	}).Start()
+	}).Start(c.context)
 }
 
 func (c *Coordinator) Sync() error {

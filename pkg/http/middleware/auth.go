@@ -1,10 +1,12 @@
 package middleware
 
 import (
-	"github.com/labstack/echo/v4"
 	"strings"
+
+	"github.com/labstack/echo/v4"
 )
 
+// Authorize is a middleware that authorizes requests based on a token.
 func Authorize(token func() string) func(echo.HandlerFunc) echo.HandlerFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(context echo.Context) error {
@@ -16,6 +18,7 @@ func Authorize(token func() string) func(echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
+// authorizeToken checks if the provided token matches the token in the Authorization header.
 func authorizeToken(token string, context echo.Context) bool {
 	authHeader := context.Request().Header.Get("Authorization")
 	if strings.HasPrefix(authHeader, "Bearer ") {

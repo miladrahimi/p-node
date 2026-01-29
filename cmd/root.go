@@ -2,9 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	r "runtime"
+
 	c "github.com/miladrahimi/p-node/internal/config"
 	"github.com/spf13/cobra"
-	r "runtime"
 )
 
 var rootCmd = &cobra.Command{

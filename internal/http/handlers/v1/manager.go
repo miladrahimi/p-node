@@ -2,10 +2,11 @@ package v1
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/cockroachdb/errors"
 	"github.com/labstack/echo/v4"
 	"github.com/miladrahimi/p-node/internal/database"
-	"net/http"
 )
 
 type ManagerStoreRequest struct {
@@ -13,6 +14,7 @@ type ManagerStoreRequest struct {
 	Token string `json:"token" validate:"omitempty,min=1,max=128"`
 }
 
+// ManagerStore stores the associated P-Manager config.
 func ManagerStore(d *database.Database) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var r ManagerStoreRequest

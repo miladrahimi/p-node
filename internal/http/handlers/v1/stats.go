@@ -1,12 +1,14 @@
 package v1
 
 import (
+	"net/http"
+
 	"github.com/cockroachdb/errors"
 	"github.com/labstack/echo/v4"
 	"github.com/miladrahimi/p-node/pkg/xray"
-	"net/http"
 )
 
+// StatsShow returns the stats of the P-Node.
 func StatsShow(x *xray.Xray) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		stats, err := x.QueryStats()

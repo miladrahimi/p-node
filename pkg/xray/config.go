@@ -2,6 +2,7 @@ package xray
 
 import (
 	"encoding/json"
+
 	"github.com/cockroachdb/errors"
 	"github.com/go-playground/validator/v10"
 )
@@ -114,6 +115,7 @@ type Metadata struct {
 	UpdatedBy string `json:"UpdatedBy"`
 }
 
+// Config represents the xray config struct.
 type Config struct {
 	Log       *Log                   `json:"log" validate:"required"`
 	Inbounds  []*Inbound             `json:"inbounds" validate:"required,dive"`
@@ -127,90 +129,7 @@ type Config struct {
 	Metadata  *Metadata              `json:"_metadata,omitempty"`
 }
 
-func (c *Config) MakeShadowsocksInbound(tag, password, method, network string, port int, clients []*Client) *Inbound {
-	return &Inbound{
-		Tag:      tag,
-		Protocol: "shadowsocks",
-		Listen:   "0.0.0.0",
-		Port:     port,
-		Settings: &InboundSettings{
-			Clients:  clients,
-			Password: password,
-			Method:   method,
-			Network:  network,
-		},
-	}
-}
-
-func (c *Config) MakeShadowsocksOutbound(tag, host, password, method string, port int) *Outbound {
-	return &Outbound{
-		Tag:      tag,
-		Protocol: "shadowsocks",
-		Settings: &OutboundSettings{
-			Servers: []*OutboundServer{
-				{
-					Address:  host,
-					Port:     port,
-					Method:   method,
-					Password: password,
-					Uot:      true,
-				},
-			},
-		},
-		StreamSettings: &StreamSettings{
-			Network: "tcp",
-		},
-	}
-}
-
-func (c *Config) FindInbound(tag string) *Inbound {
-	for _, inbound := range c.Inbounds {
-		if inbound.Tag == tag {
-			return inbound
-		}
-	}
-	return nil
-}
-
-func (c *Config) FindOutbound(tag string) *Outbound {
-	for _, outbound := range c.Outbounds {
-		if outbound.Tag == tag {
-			return outbound
-		}
-	}
-	return nil
-}
-
-func (c *Config) FindBalancer(tag string) *Balancer {
-	for _, balancer := range c.Routing.Balancers {
-		if balancer.Tag == tag {
-			return balancer
-		}
-	}
-	return nil
-}
-
-func (c *Config) Validate() error {
-	if c.FindInbound("api") == nil {
-		return errors.New("xray: config: api inbound not found")
-	}
-	return errors.WithStack(validator.New(validator.WithRequiredStructEnabled()).Struct(c))
-}
-
-func (c *Config) Equals(other *Config) bool {
-	json1, err := json.Marshal(c)
-	if err != nil {
-		return false
-	}
-
-	json2, err := json.Marshal(other)
-	if err != nil {
-		return false
-	}
-
-	return string(json1) == string(json2)
-}
-
+// NewConfig creates a new xray config struct.
 func NewConfig(logLevel string) *Config {
 	return &Config{
 		Log: &Log{
@@ -274,4 +193,95 @@ func NewConfig(logLevel string) *Config {
 			Portals: []*ReverseItem{},
 		},
 	}
+}
+
+// MakeShadowsocksInbound creates a shadowsocks inbound.
+func (c *Config) MakeShadowsocksInbound(tag, password, method, network string, port int, clients []*Client) *Inbound {
+	return &Inbound{
+		Tag:      tag,
+		Protocol: "shadowsocks",
+		Listen:   "0.0.0.0",
+		Port:     port,
+		Settings: &InboundSettings{
+			Clients:  clients,
+			Password: password,
+			Method:   method,
+			Network:  network,
+		},
+	}
+}
+
+// MakeShadowsocksOutbound creates a shadowsocks outbound.
+func (c *Config) MakeShadowsocksOutbound(tag, host, password, method string, port int) *Outbound {
+	return &Outbound{
+		Tag:      tag,
+		Protocol: "shadowsocks",
+		Settings: &OutboundSettings{
+			Servers: []*OutboundServer{
+				{
+					Address:  host,
+					Port:     port,
+					Method:   method,
+					Password: password,
+					Uot:      true,
+				},
+			},
+		},
+		StreamSettings: &StreamSettings{
+			Network: "tcp",
+		},
+	}
+}
+
+// FindInbound finds an inbound by tag.
+func (c *Config) FindInbound(tag string) *Inbound {
+	for _, inbound := range c.Inbounds {
+		if inbound.Tag == tag {
+			return inbound
+		}
+	}
+	return nil
+}
+
+// FindOutbound finds an outbound by tag.
+func (c *Config) FindOutbound(tag string) *Outbound {
+	for _, outbound := range c.Outbounds {
+		if outbound.Tag == tag {
+			return outbound
+		}
+	}
+	return nil
+}
+
+// FindBalancer finds a balancer by tag.
+func (c *Config) FindBalancer(tag string) *Balancer {
+	for _, balancer := range c.Routing.Balancers {
+		if balancer.Tag == tag {
+			return balancer
+		}
+	}
+	return nil
+}
+
+// Validate validates the xray config struct.
+func (c *Config) Validate() error {
+	if c.FindInbound("api") == nil {
+		return errors.New("xray: config: api inbound not found")
+	}
+	return errors.WithStack(validator.New(validator.WithRequiredStructEnabled()).Struct(c))
+}
+
+// Equals checks if two config structs are equal.
+func (c *Config) Equals(other *Config) bool {
+	json1, err := json.Marshal(c)
+	if err != nil {
+		return false
+	}
+
+	json2, err := json.Marshal(other)
+	if err != nil {
+		return false
+	}
+
+	return string(json1) == string(json2)
 }

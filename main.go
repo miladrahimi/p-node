@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/miladrahimi/p-node/cmd"
 	"os"
+
+	"github.com/miladrahimi/p-node/cmd"
 )
 
 func main() {

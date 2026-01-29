@@ -5,19 +5,36 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"github.com/cockroachdb/errors"
-	"github.com/labstack/echo/v4"
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/cockroachdb/errors"
+	"github.com/labstack/echo/v4"
 )
 
+// Client represents an HTTP client.
 type Client struct {
 	e          *http.Client
 	appName    string
 	appVersion string
 }
 
+// New creates a new instance of HTTP Client.
+func New(timeout int, appName, appVersion string) *Client {
+	customTransport := http.DefaultTransport.(*http.Transport).Clone()
+	customTransport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	return &Client{
+		appName:    appName,
+		appVersion: appVersion,
+		e: &http.Client{
+			Transport: customTransport,
+			Timeout:   time.Duration(timeout) * time.Second,
+		},
+	}
+}
+
+// Do sends an HTTP request and returns the response body.
 func (c *Client) Do(method, url, token string, body interface{}) ([]byte, error) {
 	info := map[string]interface{}{
 		"request_method": method,
@@ -74,19 +91,7 @@ func (c *Client) Do(method, url, token string, body interface{}) ([]byte, error)
 	return nil, errors.Errorf("unknown respose received, %s", info)
 }
 
+// DoThrough sends an HTTP request through a proxy and returns the response body.
 func (c *Client) DoThrough(proxy, method, url, token string, body interface{}) ([]byte, error) {
 	return c.Do(method, fmt.Sprintf("%s/?url=%s", proxy, url), token, body)
-}
-
-func New(timeout int, appName, appVersion string) *Client {
-	customTransport := http.DefaultTransport.(*http.Transport).Clone()
-	customTransport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-	return &Client{
-		appName:    appName,
-		appVersion: appVersion,
-		e: &http.Client{
-			Transport: customTransport,
-			Timeout:   time.Duration(timeout) * time.Second,
-		},
-	}
 }

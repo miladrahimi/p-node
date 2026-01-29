@@ -3,6 +3,9 @@ package server
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/cockroachdb/errors"
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
@@ -15,16 +18,24 @@ import (
 	"github.com/miladrahimi/p-node/pkg/logger"
 	"github.com/miladrahimi/p-node/pkg/xray"
 	"go.uber.org/zap"
-	"net/http"
-	"time"
 )
 
+// Server represents an HTTP server.
 type Server struct {
 	engine   *echo.Echo
 	config   *config.Config
 	xray     *xray.Xray
 	database *database.Database
 	l        *logger.Logger
+}
+
+// New creates a new instance of HTTP Server.
+func New(config *config.Config, l *logger.Logger, x *xray.Xray, d *database.Database) *Server {
+	e := echo.New()
+	e.HideBanner = true
+	e.Validator = validator.New()
+
+	return &Server{engine: e, config: config, l: l, xray: x, database: d}
 }
 
 // Run defines the required HTTP routes and starts the HTTP Server.
@@ -63,13 +74,4 @@ func (s *Server) Close() error {
 
 	s.l.Debug("http server: closed successfully")
 	return nil
-}
-
-// New creates a new instance of HTTP Server.
-func New(config *config.Config, l *logger.Logger, x *xray.Xray, d *database.Database) *Server {
-	e := echo.New()
-	e.HideBanner = true
-	e.Validator = validator.New()
-
-	return &Server{engine: e, config: config, l: l, xray: x, database: d}
 }

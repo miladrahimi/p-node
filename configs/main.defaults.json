@@ -3,6 +3,9 @@
     "level": "warn",
     "format": "2006-01-02 15:04:05.000"
   },
+  "http_client": {
+    "timeout": 30
+  },
   "xray": {
     "log_level": "info"
   }

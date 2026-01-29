@@ -2,9 +2,9 @@
 local-setup:
 	@./scripts/local-setup.sh
 
-.PHONY: local-run
-local-run:
-	@go run main.go start
+.PHONY: local-serve
+local-serve:
+	@go run main.go serve
 
 .PHONY: local-fresh
 local-fresh:

@@ -2,29 +2,48 @@ package database
 
 import (
 	"encoding/json"
+	"math/rand"
+	"os"
+	"sync"
+
 	"github.com/cockroachdb/errors"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/gommon/random"
 	"github.com/miladrahimi/p-node/internal/utils"
 	"github.com/miladrahimi/p-node/pkg/logger"
-	"math/rand"
-	"os"
-	"sync"
 )
 
 const Path = "storage/database/app.json"
 
-type Data struct {
+// Schema is the database schema.
+type Schema struct {
 	Settings *Settings `json:"settings"`
 	Manager  *Manager  `json:"manager"`
 }
 
+// Database is the database struct.
 type Database struct {
 	l      *logger.Logger
 	locker *sync.Mutex
-	Data   *Data
+	Data   *Schema
 }
 
+// New creates a new instance of Database.
+func New(l *logger.Logger) *Database {
+	return &Database{
+		locker: &sync.Mutex{},
+		l:      l,
+		Data: &Schema{
+			Manager: nil,
+			Settings: &Settings{
+				HttpPort:  rand.Intn(64536) + 1000,
+				HttpToken: random.String(16),
+			},
+		},
+	}
+}
+
+// Init initializes the database.
 func (d *Database) Init() error {
 	d.locker.Lock()
 	defer d.locker.Unlock()
@@ -44,6 +63,7 @@ func (d *Database) Init() error {
 	return errors.WithStack(err)
 }
 
+// Load loads the database from the file.
 func (d *Database) Load() error {
 	content, err := os.ReadFile(Path)
 	if err != nil {
@@ -59,6 +79,7 @@ func (d *Database) Load() error {
 	return errors.WithStack(err)
 }
 
+// Save saves the database to the file.
 func (d *Database) Save() error {
 	content, err := json.Marshal(d.Data)
 	if err != nil {
@@ -67,18 +88,4 @@ func (d *Database) Save() error {
 
 	err = os.WriteFile(Path, content, 0755)
 	return errors.WithStack(err)
-}
-
-func New(l *logger.Logger) *Database {
-	return &Database{
-		locker: &sync.Mutex{},
-		l:      l,
-		Data: &Data{
-			Manager: nil,
-			Settings: &Settings{
-				HttpPort:  rand.Intn(64536) + 1000,
-				HttpToken: random.String(16),
-			},
-		},
-	}
 }
