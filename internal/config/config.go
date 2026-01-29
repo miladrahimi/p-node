@@ -17,8 +17,6 @@ const AppVersion = "v25.7.20"
 const XrayConfigPath = "storage/app/xray.json"
 const XrayLogLevel = "debug"
 
-const HttpTimeout = 20
-
 const defaultConfigPath = "configs/main.defaults.json"
 const localConfigPath = "configs/main.json"
 
@@ -72,7 +70,7 @@ func New() (*Config, error) {
 		if err != nil {
 			return c, errors.WithStack(err)
 		}
-		if err = os.WriteFile(localConfigPath, contentBytes, 0755); err != nil {
+		if err = os.WriteFile(localConfigPath, contentBytes, 0644); err != nil {
 			return c, errors.WithStack(err)
 		}
 	}

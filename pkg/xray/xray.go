@@ -83,6 +83,7 @@ func (x *Xray) Stop() error {
 func (x *Xray) Run() error {
 	if !utils.FileExist(x.binaryPath) {
 		x.l.Fatal("xray: binary not found", zap.String("path", x.binaryPath))
+		return errors.New("xray: binary not found")
 	}
 
 	x.l.Debug("xray: running...")
@@ -91,9 +92,15 @@ func (x *Xray) Run() error {
 	x.command.Stdout = os.Stdout
 
 	x.l.Info("xray: executing the binary...", zap.String("path", x.binaryPath))
-	if err := x.command.Run(); err != nil && err.Error() != "signal: killed" {
-		x.l.Fatal("cannot execute the binary", zap.Error(errors.WithStack(err)))
+	if err := x.command.Start(); err != nil {
+		return errors.WithStack(err)
 	}
+
+	go func() {
+		if err := x.command.Wait(); err != nil && err.Error() != "signal: killed" {
+			x.l.Fatal("xray: process exited unexpectedly", zap.Error(errors.WithStack(err)))
+		}
+	}()
 
 	return nil
 }
@@ -200,7 +207,7 @@ func (x *Xray) saveConfig() error {
 		return errors.WithStack(err)
 	}
 
-	err = os.WriteFile(x.configPath, content, 0755)
+	err = os.WriteFile(x.configPath, content, 0644)
 	if err == nil {
 		x.l.Debug("xray: config file saved")
 	}

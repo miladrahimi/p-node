@@ -8,10 +8,11 @@ import (
 
 // FileExist checks if the given file path exists or not.
 func FileExist(path string) bool {
-	if stat, err := os.Stat(path); os.IsNotExist(err) || stat.IsDir() {
+	stat, err := os.Stat(path)
+	if err != nil {
 		return false
 	}
-	return true
+	return !stat.IsDir()
 }
 
 // FreePort finds a free port.
@@ -40,7 +41,7 @@ func PortFree(port int) bool {
 	}
 
 	if err = listener.Close(); err != nil {
-		return PortFree(port)
+		return false
 	}
 
 	return true

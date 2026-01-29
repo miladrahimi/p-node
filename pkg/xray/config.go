@@ -29,7 +29,7 @@ type InboundSettings struct {
 
 type Inbound struct {
 	Listen   string           `json:"listen" validate:"required"`
-	Port     int              `json:"port" validate:"required,min=1,max=65536"`
+	Port     int              `json:"port" validate:"required,min=1,max=65535"`
 	Protocol string           `json:"protocol" validate:"required"`
 	Settings *InboundSettings `json:"settings" validate:"required"`
 	Tag      string           `json:"tag" validate:"required"`
@@ -37,7 +37,7 @@ type Inbound struct {
 
 type OutboundServer struct {
 	Address  string `json:"address" validate:"required"`
-	Port     int    `json:"port" validate:"required,min=1,max=65536"`
+	Port     int    `json:"port" validate:"required,min=1,max=65535"`
 	Method   string `json:"method" validate:"required"`
 	Password string `json:"password" validate:"required"`
 	Uot      bool   `json:"uot"`

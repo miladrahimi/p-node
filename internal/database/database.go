@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/cockroachdb/errors"
 	"github.com/go-playground/validator/v10"
@@ -30,13 +31,14 @@ type Database struct {
 
 // New creates a new instance of Database.
 func New(l *logger.Logger) *Database {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	return &Database{
 		locker: &sync.Mutex{},
 		l:      l,
 		Data: &Schema{
 			Manager: nil,
 			Settings: &Settings{
-				HttpPort:  rand.Intn(64536) + 1000,
+				HttpPort:  r.Intn(64536) + 1000,
 				HttpToken: random.String(16),
 			},
 		},
@@ -75,8 +77,23 @@ func (d *Database) Load() error {
 		return errors.WithStack(err)
 	}
 
-	err = validator.New().Struct(d)
-	return errors.WithStack(err)
+	v := validator.New()
+	if d.Data == nil {
+		return errors.New("database: missing schema")
+	}
+	if d.Data.Settings == nil {
+		return errors.New("database: missing settings")
+	}
+	if err = v.Struct(d.Data.Settings); err != nil {
+		return errors.WithStack(err)
+	}
+	if d.Data.Manager != nil {
+		if err = v.Struct(d.Data.Manager); err != nil {
+			return errors.WithStack(err)
+		}
+	}
+
+	return nil
 }
 
 // Save saves the database to the file.
@@ -86,6 +103,6 @@ func (d *Database) Save() error {
 		return errors.WithStack(err)
 	}
 
-	err = os.WriteFile(Path, content, 0755)
+	err = os.WriteFile(Path, content, 0644)
 	return errors.WithStack(err)
 }

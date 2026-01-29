@@ -37,6 +37,8 @@ func Logger(l *logger.Logger) echo.MiddlewareFunc {
 			id := req.Header.Get(echo.HeaderXRequestID)
 			if id == "" {
 				id = res.Header().Get(echo.HeaderXRequestID)
+			}
+			if id != "" {
 				fields = append(fields, zap.String("request_id", id))
 			}
 

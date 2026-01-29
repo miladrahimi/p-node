@@ -23,12 +23,10 @@ func init() {
 // serve runs the application and xray.
 func serve(_ *cobra.Command, _ []string) {
 	a, err := app.New()
-	defer func() {
-		a.Close()
-	}()
 	if err != nil {
 		panic(fmt.Sprintf("%+v\n", err))
 	}
+	defer a.Close()
 
 	if err = a.Run(); err != nil {
 		panic(fmt.Sprintf("%+v\n", err))

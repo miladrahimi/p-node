@@ -25,6 +25,7 @@ func New(name string, l *logger.Logger, interval time.Duration, body func()) *Wo
 func (w *Worker) Start(ctx context.Context) {
 	ticker := time.NewTicker(w.interval)
 	go func() {
+		defer ticker.Stop()
 		for {
 			select {
 			case <-ctx.Done():

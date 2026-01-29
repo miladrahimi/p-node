@@ -48,7 +48,7 @@ func (c *Client) Do(method, url, token string, body interface{}) ([]byte, error)
 		var err error
 		requestBody, err = json.Marshal(body)
 		if err != nil {
-			return nil, errors.Wrapf(err, "cannot unmarshall request body, %v", info)
+			return nil, errors.Wrapf(err, "cannot marshal request body, %v", info)
 		}
 		requestReader = bytes.NewBuffer(requestBody)
 		info["request_body"] = string(requestBody)
@@ -88,7 +88,7 @@ func (c *Client) Do(method, url, token string, body interface{}) ([]byte, error)
 		return responseBody, nil
 	}
 
-	return nil, errors.Errorf("unknown respose received, %s", info)
+	return nil, errors.Errorf("unknown response received, %s", info)
 }
 
 // DoThrough sends an HTTP request through a proxy and returns the response body.

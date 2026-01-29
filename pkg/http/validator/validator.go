@@ -14,13 +14,12 @@ type Validator struct {
 
 // New creates a new instance of Validator.
 func New() *Validator {
-	return &Validator{validator: pg.New()}
+	return &Validator{validator: pg.New(pg.WithRequiredStructEnabled())}
 }
 
 // Validate validates the given interface using the validator instance.
 func (cv *Validator) Validate(i interface{}) error {
-	v := pg.New(pg.WithRequiredStructEnabled())
-	if err := v.Struct(i); err != nil {
+	if err := cv.validator.Struct(i); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	return nil
