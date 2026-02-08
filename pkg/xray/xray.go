@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -14,6 +15,7 @@ import (
 	"github.com/miladrahimi/p-node/pkg/logger"
 	"github.com/miladrahimi/p-node/pkg/util"
 	xc "github.com/miladrahimi/p-node/pkg/xray/config"
+	xrayutil "github.com/miladrahimi/p-node/pkg/xray/util"
 	stats "github.com/xtls/xray-core/app/stats/command"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -163,6 +165,23 @@ func (x *Xray) QueryStats() ([]*stats.Stat, error) {
 		return nil, errors.WithStack(err)
 	}
 	return qs.GetStat(), nil
+}
+
+// GenerateX25519 generates an X25519 key pair (private and public) using the Xray binary.
+func (x *Xray) GenerateX25519() (string, string, error) {
+	if !util.FileExist(x.binaryPath) {
+		return "", "", errors.New("xray: binary not found")
+	}
+
+	cmd := exec.Command(x.binaryPath, "x25519")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return "", "", errors.WithMessage(err, "xray: x25519 failed: "+strings.TrimSpace(string(output)))
+	}
+
+	privateKey, password, err := xrayutil.ParseX25519Output(output)
+
+	return privateKey, password, errors.WithStack(err)
 }
 
 func (x *Xray) stopLocked() error {
