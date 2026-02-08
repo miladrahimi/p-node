@@ -74,21 +74,17 @@ func (c *Client) Do(method, url, token string, body interface{}) ([]byte, error)
 
 	info["response_status"] = response.StatusCode
 
-	is2xx := response.StatusCode >= 200 && response.StatusCode < 300
-	is4xx := response.StatusCode >= 400 && response.StatusCode < 500
-	if is2xx || is4xx {
-		responseBody, err := io.ReadAll(response.Body)
-		if err != nil {
-			return nil, errors.Wrapf(err, "cannot read response body, %v", info)
-		}
-		info["response_body"] = string(responseBody)
-		if is4xx {
-			return responseBody, errors.Errorf("bad request received, %v", info)
-		}
+	responseBody, err := io.ReadAll(response.Body)
+	if err != nil {
+		return nil, errors.Wrapf(err, "cannot read response body, %v", info)
+	}
+	info["response_body"] = string(responseBody)
+
+	if response.StatusCode >= 200 && response.StatusCode < 300 {
 		return responseBody, nil
 	}
 
-	return nil, errors.Errorf("unknown response received, %s", info)
+	return responseBody, errors.Errorf("unexpected response received, %v", info)
 }
 
 // DoThrough sends an HTTP request through a proxy and returns the response body.

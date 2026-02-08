@@ -45,7 +45,8 @@ make update
 ### Status and Logs
 
 The application service is named after its directory, with `p-node` as the default in `systemd`.
-It allows running multiple instances on a single server by placing the application in different directories with different names (like `p-node-2` and `p-node-3`).
+It allows running multiple instances on a single server by placing the application in different directories.
+Default naming strategy for multiple instances is using `p-node-2` and `p-node-3`, etc.
 
 To check the status of the application, execute the following command:
 

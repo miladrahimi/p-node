@@ -1,6 +1,8 @@
 #!/bin/bash
 
-DB_PATH="$(realpath "$(dirname "$0")/../storage/database/app.json")"
+# Reveal required information about the node for P-Manager.
+
+DB_PATH="$(realpath "$(dirname "$0")/../storage/database/data.json")"
 if [ -f "$DB_PATH" ]; then
   printf "IP: " && curl ifconfig.io
   printf "DB: " && cat "$DB_PATH" && printf "\n"

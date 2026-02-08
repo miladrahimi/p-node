@@ -6,20 +6,16 @@ local-setup:
 local-serve:
 	@go run main.go serve
 
+.PHONY: local-clean
+local-clean:
+	@rm -f storage/logs/*.log
+
 .PHONY: local-fresh
 local-fresh:
 	@rm -f storage/app/*.txt
 	@rm -f storage/app/*.json
 	@rm -f storage/database/*.json
 	@rm -f storage/logs/*.log
-
-.PHONY: local-clean
-local-clean:
-	@rm -f storage/logs/*.log
-
-.PHONY: schedule-reboot
-schedule-reboot:
-	@./scripts/schedule-reboot.sh
 
 .PHONY: build
 build:
@@ -52,3 +48,7 @@ fresh:
 	@rm -f storage/database/*.json
 	@rm -f storage/logs/*.log
 	@docker compose restart
+
+.PHONY: schedule-server-reboot
+schedule-server-reboot:
+	@./scripts/schedule-server-reboot.sh

@@ -9,8 +9,9 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/miladrahimi/p-node/internal/config"
 	"github.com/miladrahimi/p-node/internal/coordinator"
-	"github.com/miladrahimi/p-node/internal/database"
+	"github.com/miladrahimi/p-node/internal/data"
 	"github.com/miladrahimi/p-node/internal/http/server"
+	"github.com/miladrahimi/p-node/pkg/database"
 	"github.com/miladrahimi/p-node/pkg/http/client"
 	"github.com/miladrahimi/p-node/pkg/logger"
 	"github.com/miladrahimi/p-node/pkg/xray"
@@ -28,7 +29,7 @@ type App struct {
 	httpClient  *client.Client
 	xray        *xray.Xray
 	coordinator *coordinator.Coordinator
-	database    *database.Database
+	database    *database.Database[data.Data]
 }
 
 // New creates a new application instance.
@@ -41,13 +42,15 @@ func New() (a *App, err error) {
 		return a, errors.WithStack(err)
 	}
 
-	a.logger, err = logger.New(a.config.Logger.Level, a.config.Logger.Format, a.shutdown)
-	if err != nil {
+	if a.logger, err = logger.New(a.config.Logger.Level, a.config.Logger.Format, a.shutdown); err != nil {
 		return a, errors.WithStack(err)
 	}
 
-	a.xray = xray.New(a.context, a.logger, config.XrayLogLevel, config.XrayConfigPath, config.XrayBinaryPath())
-	a.database = database.New(a.logger)
+	if a.database, err = database.New(config.DatabaseDirectory, data.Default()); err != nil {
+		return a, errors.WithStack(err)
+	}
+
+	a.xray = xray.New(a.context, a.logger, a.config.Xray.LogLevel, config.XrayConfigPath, config.XrayBinaryPath())
 	a.httpServer = server.New(a.config, a.logger, a.xray, a.database)
 	a.httpClient = client.New(a.config.HttpClient.Timeout, config.AppName, config.AppVersion)
 	a.coordinator = coordinator.New(a.context, a.logger, a.config, a.database, a.httpClient, a.xray)
@@ -62,9 +65,6 @@ func New() (a *App, err error) {
 // Run starts the application.
 func (a *App) Run() error {
 	if err := a.database.Init(); err != nil {
-		return errors.WithStack(err)
-	}
-	if err := a.xray.Init(); err != nil {
 		return errors.WithStack(err)
 	}
 	if err := a.xray.Run(); err != nil {
@@ -90,12 +90,12 @@ func (a *App) Close() {
 
 	if a.httpServer != nil {
 		if err := a.httpServer.Close(); err != nil {
-			a.logger.Error("http server: cannot close", zap.Error(errors.WithStack(err)))
+			a.logger.Error("cannot close http server", zap.Error(errors.WithStack(err)))
 		}
 	}
 	if a.xray != nil {
 		if err := a.xray.Stop(); err != nil {
-			a.logger.Error("xray: cannot close", zap.Error(errors.WithStack(err)))
+			a.logger.Error("cannot close xray", zap.Error(errors.WithStack(err)))
 		}
 	}
 	if a.logger != nil {

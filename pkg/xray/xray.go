@@ -5,13 +5,15 @@ import (
 	"encoding/json"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"sync"
 	"time"
 
 	"github.com/cockroachdb/errors"
-	"github.com/miladrahimi/p-node/internal/utils"
 	"github.com/miladrahimi/p-node/pkg/logger"
+	"github.com/miladrahimi/p-node/pkg/util"
+	xc "github.com/miladrahimi/p-node/pkg/xray/config"
 	stats "github.com/xtls/xray-core/app/stats/command"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -21,12 +23,12 @@ import (
 // Xray represents the Xray instance which is running in the background.
 type Xray struct {
 	l          *logger.Logger
-	config     *Config
+	config     *xc.Config
 	configPath string
 	binaryPath string
 	command    *exec.Cmd
 	connection *grpc.ClientConn
-	locker     *sync.Mutex
+	locker     sync.Mutex
 	context    context.Context
 }
 
@@ -35,15 +37,17 @@ func New(c context.Context, logger *logger.Logger, logLevel, configPath, binaryP
 	return &Xray{
 		context:    c,
 		l:          logger,
-		config:     NewConfig(logLevel),
+		config:     xc.New(logLevel),
 		binaryPath: binaryPath,
 		configPath: configPath,
-		locker:     &sync.Mutex{},
 	}
 }
 
 // Init initializes the Xray instance.
 func (x *Xray) Init() error {
+	x.locker.Lock()
+	defer x.locker.Unlock()
+
 	if err := x.saveConfig(); err != nil {
 		return errors.WithStack(err)
 	}
@@ -52,77 +56,41 @@ func (x *Xray) Init() error {
 
 // Stop kills the Xray instance.
 func (x *Xray) Stop() error {
-	x.l.Debug("xray: stopping...")
-
 	x.locker.Lock()
 	defer x.locker.Unlock()
 
-	if x.connection != nil {
-		x.l.Debug("xray: closing the api connection...")
-		if err := x.connection.Close(); err != nil {
-			x.l.Debug("xray: cannot close the api connection", zap.Error(errors.WithStack(err)))
-		} else {
-			x.l.Debug("xray: the api connection closed")
-		}
-	}
-
-	if x.command != nil && x.command.Process != nil {
-		x.l.Debug("xray: killing the process...")
-		if err := x.command.Process.Kill(); err != nil {
-			return errors.WithStack(err)
-		} else {
-			x.l.Debug("xray: the process killed")
-		}
-	}
-
-	x.l.Info("xray: closed")
-	return nil
+	return x.stopLocked()
 }
 
 // Run runs the Xray proxy instance in the background.
 func (x *Xray) Run() error {
-	if !utils.FileExist(x.binaryPath) {
-		x.l.Fatal("xray: binary not found", zap.String("path", x.binaryPath))
-		return errors.New("xray: binary not found")
-	}
+	x.locker.Lock()
+	defer x.locker.Unlock()
 
-	x.l.Debug("xray: running...")
-	x.command = exec.Command(x.binaryPath, "-c", x.configPath)
-	x.command.Stderr = os.Stderr
-	x.command.Stdout = os.Stdout
-
-	x.l.Info("xray: executing the binary...", zap.String("path", x.binaryPath))
-	if err := x.command.Start(); err != nil {
-		return errors.WithStack(err)
-	}
-
-	go func() {
-		if err := x.command.Wait(); err != nil && err.Error() != "signal: killed" {
-			x.l.Fatal("xray: process exited unexpectedly", zap.Error(errors.WithStack(err)))
-		}
-	}()
-
-	return nil
+	return x.runLocked()
 }
 
 // Restart restarts the Xray instance.
-func (x *Xray) Restart() {
-	x.l.Info("xray: restarting...")
+func (x *Xray) Restart() error {
+	x.locker.Lock()
+	defer x.locker.Unlock()
 
-	if err := x.Stop(); err != nil {
-		x.l.Error("xray: cannot close", zap.Error(errors.WithStack(err)))
-	}
-
-	if err := x.Run(); err != nil {
-		x.l.Fatal("xray: cannot run again", zap.Error(errors.WithStack(err)))
-	}
+	return x.restartLocked()
 }
 
 // Connect connects to the Xray API.
 func (x *Xray) Connect() error {
+	x.locker.Lock()
+	if x.connection != nil {
+		x.locker.Unlock()
+		return nil
+	}
+	currentConfig := x.config
+	x.locker.Unlock()
+
 	x.l.Debug("xray: connecting to api...")
 
-	inbound := x.config.FindInbound("api")
+	inbound := currentConfig.FindInbound("api")
 	if inbound == nil {
 		return errors.New("no api inbound")
 	}
@@ -138,11 +106,13 @@ func (x *Xray) Connect() error {
 			return errors.New("connection to xray api timed out")
 		default:
 			time.Sleep(time.Second)
-			var err error
-			x.connection, err = grpc.NewClient(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
+			conn, err := grpc.NewClient(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 			if err != nil {
 				x.l.Debug("xray: trying to Connect to api", zap.Error(errors.WithStack(err)))
 			} else {
+				x.locker.Lock()
+				x.connection = conn
+				x.locker.Unlock()
 				x.l.Debug("xray: connected to api successfully")
 				return nil
 			}
@@ -151,18 +121,43 @@ func (x *Xray) Connect() error {
 }
 
 // Config returns the Xray config.
-func (x *Xray) Config() *Config {
+func (x *Xray) Config() *xc.Config {
+	x.locker.Lock()
+	defer x.locker.Unlock()
+
 	return x.config
 }
 
-// SetConfig sets the Xray config.
-func (x *Xray) SetConfig(config *Config) {
-	x.config = config
+// Reconfigure sets the Xray config.
+func (x *Xray) Reconfigure(newConfig *xc.Config) error {
+	if newConfig == nil {
+		return errors.New("xray: config is nil")
+	}
+	if err := newConfig.Validate(); err != nil {
+		return errors.WithStack(err)
+	}
+
+	x.locker.Lock()
+	defer x.locker.Unlock()
+
+	x.config = newConfig
+	return x.restartLocked()
 }
 
 // QueryStats queries the Xray stats.
 func (x *Xray) QueryStats() ([]*stats.Stat, error) {
-	client := stats.NewStatsServiceClient(x.connection)
+	if err := x.Connect(); err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	x.locker.Lock()
+	conn := x.connection
+	x.locker.Unlock()
+	if conn == nil {
+		return nil, errors.New("xray: api connection is not established")
+	}
+
+	client := stats.NewStatsServiceClient(conn)
 	qs, err := client.QueryStats(context.Background(), &stats.QueryStatsRequest{Reset_: true})
 	if err != nil {
 		return nil, errors.WithStack(err)
@@ -170,11 +165,78 @@ func (x *Xray) QueryStats() ([]*stats.Stat, error) {
 	return qs.GetStat(), nil
 }
 
+func (x *Xray) stopLocked() error {
+	x.l.Debug("xray: stopping...")
+
+	if x.connection != nil {
+		x.l.Debug("xray: closing the api connection...")
+		if err := x.connection.Close(); err != nil {
+			x.l.Debug("xray: cannot close the api connection", zap.Error(errors.WithStack(err)))
+		} else {
+			x.l.Debug("xray: the api connection closed")
+		}
+		x.connection = nil
+	}
+
+	if x.command != nil && x.command.Process != nil {
+		x.l.Debug("xray: killing the process...")
+		if err := x.command.Process.Kill(); err != nil {
+			return errors.WithStack(err)
+		} else {
+			x.l.Debug("xray: the process killed")
+		}
+	}
+	x.command = nil
+
+	x.l.Info("xray: closed")
+	return nil
+}
+
+func (x *Xray) runLocked() error {
+	if !util.FileExist(x.binaryPath) {
+		x.l.Fatal("xray: binary not found", zap.String("path", x.binaryPath))
+		return errors.New("xray: binary not found")
+	}
+
+	if err := x.saveConfig(); err != nil {
+		return errors.WithStack(err)
+	}
+
+	x.l.Debug("xray: running...")
+	x.command = exec.Command(x.binaryPath, "-c", x.configPath)
+	x.command.Stderr = os.Stderr
+	x.command.Stdout = os.Stdout
+
+	x.l.Info("xray: executing the binary...", zap.String("path", x.binaryPath))
+	if err := x.command.Start(); err != nil {
+		x.command = nil
+		return errors.WithStack(err)
+	}
+
+	go func(cmd *exec.Cmd) {
+		if err := cmd.Wait(); err != nil && err.Error() != "signal: killed" {
+			x.l.Fatal("xray: process exited unexpectedly", zap.Error(errors.WithStack(err)))
+		}
+	}(x.command)
+
+	return nil
+}
+
+func (x *Xray) restartLocked() error {
+	x.l.Info("xray: restarting...")
+
+	if err := x.stopLocked(); err != nil {
+		return errors.WithStack(err)
+	}
+
+	return errors.WithStack(x.runLocked())
+}
+
 // loadConfig loads the Xray config file.
 func (x *Xray) loadConfig() error {
 	x.l.Debug("xray: loading config file...")
 
-	if !utils.FileExist(x.configPath) {
+	if !util.FileExist(x.configPath) {
 		x.l.Debug("xray: no config file found, it is fresh")
 		return nil
 	}
@@ -184,7 +246,7 @@ func (x *Xray) loadConfig() error {
 		return errors.WithStack(err)
 	}
 
-	var newConfig Config
+	var newConfig xc.Config
 	if err = json.Unmarshal(content, &newConfig); err != nil {
 		return errors.WithStack(err)
 	}
@@ -204,6 +266,10 @@ func (x *Xray) saveConfig() error {
 
 	content, err := json.Marshal(x.config)
 	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	if err = os.MkdirAll(filepath.Dir(x.configPath), 0o755); err != nil {
 		return errors.WithStack(err)
 	}
 

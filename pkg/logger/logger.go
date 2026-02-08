@@ -22,7 +22,7 @@ func New(level, format string, closer chan struct{}) (logger *Logger, err error)
 
 	logLevel := zap.NewAtomicLevel()
 	if err = logLevel.UnmarshalText([]byte(l.level)); err != nil {
-		return nil, errors.Wrapf(err, "invalid log level '%s'", logLevel)
+		return nil, errors.Wrapf(err, "invalid log level '%s'", l.level)
 	}
 
 	l.e, err = zap.Config{

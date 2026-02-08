@@ -14,7 +14,7 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	cobra.OnInitialize(func() {
-		fmt.Println(c.AppName, c.AppVersion, "(", r.Version(), r.Compiler, r.GOOS, "/", r.GOARCH, ")")
+		fmt.Println(c.AppName, c.AppVersion, "/", r.Compiler, r.Version(), "/", r.GOOS, r.GOARCH)
 	})
 }
 

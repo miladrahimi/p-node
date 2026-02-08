@@ -8,14 +8,15 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/go-playground/validator/v10"
-	"github.com/miladrahimi/p-node/internal/utils"
+	"github.com/miladrahimi/p-node/pkg/util"
 )
 
 const AppName = "P-Node"
-const AppVersion = "v25.7.20"
+const AppVersion = "v26.2.8"
+
+const DatabaseDirectory = "storage/database"
 
 const XrayConfigPath = "storage/app/xray.json"
-const XrayLogLevel = "debug"
 
 const defaultConfigPath = "configs/main.defaults.json"
 const localConfigPath = "configs/main.json"
@@ -25,6 +26,7 @@ var xrayBinaryPaths = map[string]string{
 	"linux":  "third_party/xray-linux-64/xray",
 }
 
+// XrayBinaryPath returns the path of the xray binary for the current OS.
 func XrayBinaryPath() string {
 	if path, found := xrayBinaryPaths[runtime.GOOS]; found {
 		return path
@@ -32,10 +34,15 @@ func XrayBinaryPath() string {
 	return xrayBinaryPaths["linux"]
 }
 
+// Config represents the application configuration.
 type Config struct {
 	HttpClient struct {
 		Timeout int `json:"timeout" validate:"required,min=10,max=60000"`
 	} `json:"http_client" validate:"required"`
+
+	Xray struct {
+		LogLevel string `json:"log_level" validate:"required,oneof=debug info warning error none"`
+	} `json:"xray" validate:"required"`
 
 	Logger struct {
 		Level  string `json:"level" validate:"required,oneof=debug info warn error"`
@@ -56,7 +63,7 @@ func New() (*Config, error) {
 		return c, errors.WithStack(err)
 	}
 
-	if utils.FileExist(localConfigPath) {
+	if util.FileExist(localConfigPath) {
 		content, err = os.ReadFile(localConfigPath)
 		if err != nil {
 			return c, errors.WithStack(err)
@@ -75,7 +82,7 @@ func New() (*Config, error) {
 		}
 	}
 
-	fmt.Println("config: loaded from file(s)", c.String())
+	fmt.Println("Config:", c.String())
 
 	return c, errors.WithStack(validator.New().Struct(c))
 }

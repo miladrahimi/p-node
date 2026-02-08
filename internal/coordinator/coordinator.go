@@ -8,82 +8,84 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/miladrahimi/p-node/internal/config"
-	"github.com/miladrahimi/p-node/internal/database"
-	"github.com/miladrahimi/p-node/pkg/http/client"
+	"github.com/miladrahimi/p-node/internal/data"
+	"github.com/miladrahimi/p-node/pkg/database"
+	httpClient "github.com/miladrahimi/p-node/pkg/http/client"
 	"github.com/miladrahimi/p-node/pkg/logger"
 	"github.com/miladrahimi/p-node/pkg/worker"
 	"github.com/miladrahimi/p-node/pkg/xray"
-	"go.uber.org/zap"
+	config2 "github.com/miladrahimi/p-node/pkg/xray/config"
 )
 
+// Coordinator represents the app coordinator which manages xray and database.
 type Coordinator struct {
-	l       *logger.Logger
-	context context.Context
-	config  *config.Config
-	d       *database.Database
-	xray    *xray.Xray
-	client  *client.Client
+	logger     *logger.Logger
+	context    context.Context
+	config     *config.Config
+	data       *database.Database[data.Data]
+	xray       *xray.Xray
+	httpClient *httpClient.Client
 }
 
-func (c *Coordinator) Run() {
-	c.l.Info("coordinator: running...")
+// New creates a new coordinator.
+func New(
+	ctx context.Context,
+	l *logger.Logger,
+	c *config.Config,
+	d *database.Database[data.Data],
+	hc *httpClient.Client,
+	x *xray.Xray,
+) *Coordinator {
+	return &Coordinator{
+		logger:     l,
+		config:     c,
+		context:    ctx,
+		data:       d,
+		httpClient: hc,
+		xray:       x,
+	}
+}
 
-	go worker.New("SyncWithManager", c.l, 30*time.Second, func() {
-		c.l.Info("coordinator: running worker for sync...")
-		if err := c.Sync(); err != nil {
-			c.l.Error("coordinator: cannot sync", zap.Error(errors.WithStack(err)))
-		}
+// Run starts the coordinator.
+func (c *Coordinator) Run() {
+	c.logger.Info("coordinator: running...")
+
+	go worker.New("SyncWithManager", c.logger, 30*time.Second, func() error {
+		return c.Sync()
 	}).Start(c.context)
 }
 
+// Sync syncs the xray config with the associated P-Manager if it exists.
 func (c *Coordinator) Sync() error {
-	if c.d.Data.Manager == nil {
+	manager := c.data.Data().Manager
+	if manager == nil {
 		return nil
 	}
 
-	remoteConfig, err := c.fetchConfig(c.d.Data.Manager)
+	managerXrayConfig, err := c.fetchConfig(manager)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	if !c.xray.Config().Equals(remoteConfig) {
-		c.l.Info("coordinator: updating xray config...")
-		c.xray.SetConfig(remoteConfig)
-		go c.xray.Restart()
+	localXrayConfig := c.xray.Config()
+	if localXrayConfig.Equals(managerXrayConfig) {
+		return nil
 	}
 
-	return nil
+	c.logger.Info("coordinator: reconfiguring xray...")
+
+	return errors.WithStack(c.xray.Reconfigure(managerXrayConfig))
 }
 
-func (c *Coordinator) fetchConfig(manager *database.Manager) (*xray.Config, error) {
+// fetchConfig fetches the xray config from the given P-Manager.
+func (c *Coordinator) fetchConfig(manager *data.Manager) (*config2.Config, error) {
 	url := fmt.Sprintf("%s/configs", manager.Url)
-	response, err := c.client.Do("GET", url, manager.Token, nil)
+	response, err := c.httpClient.Do("GET", url, manager.Token, nil)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	var xc xray.Config
-	if err = json.Unmarshal(response, &xc); err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	return &xc, nil
-}
-
-func New(
-	ctx context.Context,
-	l *logger.Logger,
-	config *config.Config,
-	d *database.Database,
-	client *client.Client,
-	xray *xray.Xray,
-) *Coordinator {
-	return &Coordinator{
-		l:       l,
-		config:  config,
-		context: ctx,
-		d:       d,
-		client:  client,
-		xray:    xray,
-	}
+	var xc config2.Config
+	err = json.Unmarshal(response, &xc)
+	return &xc, errors.WithStack(err)
 }
