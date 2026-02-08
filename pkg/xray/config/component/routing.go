@@ -1,10 +1,11 @@
 package component
 
 type Rule struct {
-	InboundTag  []string `json:"inboundTag" validate:"required"`
+	InboundTag  []string `json:"inboundTag,omitempty"`
 	OutboundTag string   `json:"outboundTag,omitempty"`
 	BalancerTag string   `json:"balancerTag,omitempty"`
 	Domain      []string `json:"domain,omitempty"`
+	IP          []string `json:"ip,omitempty"`
 }
 
 type RoutingSettings struct {
@@ -17,8 +18,8 @@ type Balancer struct {
 }
 
 type Routing struct {
-	DomainStrategy string      `json:"domainStrategy" validate:"required"`
-	DomainMatcher  string      `json:"domainMatcher" validate:"required"`
+	DomainStrategy string      `json:"domainStrategy,omitempty"`
+	DomainMatcher  string      `json:"domainMatcher,omitempty"`
 	Rules          []*Rule     `json:"rules,omitempty" validate:"omitempty,dive"`
 	Balancers      []*Balancer `json:"balancers,omitempty" validate:"omitempty,dive"`
 }

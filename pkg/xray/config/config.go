@@ -6,7 +6,6 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/go-playground/validator/v10"
 	"github.com/miladrahimi/p-node/pkg/xray/config/component"
-	"github.com/miladrahimi/p-node/pkg/xray/config/protocol"
 )
 
 // Config represents the xray config struct.
@@ -14,13 +13,13 @@ type Config struct {
 	Log       *component.Log        `json:"log" validate:"required"`
 	Inbounds  []*component.Inbound  `json:"inbounds" validate:"required,dive"`
 	Outbounds []*component.Outbound `json:"outbounds" validate:"required,dive"`
-	DNS       *component.Dns        `json:"dns" validate:"required"`
-	Stats     *component.Stats      `json:"stats" validate:"required"`
-	API       *component.Api        `json:"api" validate:"required"`
-	Policy    *component.Policy     `json:"policy" validate:"required"`
-	Routing   *component.Routing    `json:"routing" validate:"required"`
-	Reverse   *component.Reverse    `json:"reverse,omitempty"`
-	Metadata  *component.Metadata   `json:"_metadata,omitempty"`
+	Dns       *component.Dns        `json:"dns,omitempty" validate:"omitempty"`
+	Stats     *component.Stats      `json:"stats,omitempty" validate:"omitempty"`
+	API       *component.Api        `json:"api,omitempty" validate:"omitempty"`
+	Policy    *component.Policy     `json:"policy,omitempty" validate:"omitempty"`
+	Routing   *component.Routing    `json:"routing,omitempty" validate:"omitempty"`
+	Reverse   *component.Reverse    `json:"reverse,omitempty" validate:"omitempty"`
+	Metadata  *component.Metadata   `json:"_metadata,omitempty" validate:"omitempty"`
 }
 
 // New creates a new xray config struct.
@@ -49,7 +48,7 @@ func New(logLevel string) *Config {
 				Protocol: "freedom",
 			},
 		},
-		DNS: &component.Dns{
+		Dns: &component.Dns{
 			Servers: []string{"8.8.8.8", "8.8.4.4", "localhost"},
 		},
 		Stats: &component.Stats{},
@@ -89,53 +88,6 @@ func New(logLevel string) *Config {
 	}
 }
 
-// MakeShadowsocksInbound creates a shadowsocks inbound.
-func (c *Config) MakeShadowsocksInbound(
-	tag, password, method, network string,
-	port int,
-	ssClients []*protocol.SsClient,
-) *component.Inbound {
-	clients := make([]any, 0, len(ssClients))
-	for _, client := range ssClients {
-		clients = append(clients, client)
-	}
-
-	return &component.Inbound{
-		Tag:      tag,
-		Protocol: "shadowsocks",
-		Listen:   "0.0.0.0",
-		Port:     port,
-		Settings: &component.InboundSettings{
-			Clients:  clients,
-			Password: password,
-			Method:   method,
-			Network:  network,
-		},
-	}
-}
-
-// MakeShadowsocksOutbound creates a shadowsocks outbound.
-func (c *Config) MakeShadowsocksOutbound(tag, host, password, method string, port int) *component.Outbound {
-	return &component.Outbound{
-		Tag:      tag,
-		Protocol: "shadowsocks",
-		Settings: &protocol.SsOutboundSettings{
-			Servers: []*protocol.SsOutboundServer{
-				{
-					Address:  host,
-					Port:     port,
-					Method:   method,
-					Password: password,
-					Uot:      true,
-				},
-			},
-		},
-		StreamSettings: &component.StreamSettings{
-			Network: "tcp",
-		},
-	}
-}
-
 // FindInbound finds an inbound by tag.
 func (c *Config) FindInbound(tag string) *component.Inbound {
 	for _, inbound := range c.Inbounds {
@@ -158,6 +110,9 @@ func (c *Config) FindOutbound(tag string) *component.Outbound {
 
 // FindBalancer finds a balancer by tag.
 func (c *Config) FindBalancer(tag string) *component.Balancer {
+	if c.Routing == nil {
+		return nil
+	}
 	for _, balancer := range c.Routing.Balancers {
 		if balancer.Tag == tag {
 			return balancer
@@ -168,7 +123,7 @@ func (c *Config) FindBalancer(tag string) *component.Balancer {
 
 // Validate validates the xray config struct.
 func (c *Config) Validate() error {
-	if c.FindInbound("api") == nil {
+	if c.API != nil && c.FindInbound("api") == nil {
 		return errors.New("xray: config: api inbound not found")
 	}
 	return errors.WithStack(validator.New(validator.WithRequiredStructEnabled()).Struct(c))
