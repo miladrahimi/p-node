@@ -53,11 +53,10 @@ It runs Xray binary, exposes a small HTTP API for stats/config updates, and pers
 - `go.uber.org/zap`: Logging
 
 ## Key Behavior Notes / Gotchas
-- `pkg/database` locks Load/Save and creates parent dir on Save.
-- `pkg/xray` serializes Run/Stop/Restart; `Reconfigure` validates config; `QueryStats` lazily connects.
 - `pkg/http/client` skips TLS verification (intentionally).
 - `settings.http_token` is generated randomly on first run (see `internal/data/settings.go`).
 - `make update` is destructive (`git reset --hard` + `git clean -fd`).
+- Use Java-style camelCase for namings (`UserId` instead of `userID`, `clientId` is `clientID`, etc.)
 
 ## Xray
 Xray is a proxy platform which can be used to run proxy servers. with different protocols like Shadowsocks, VMess, VLess,
