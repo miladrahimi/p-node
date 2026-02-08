@@ -14,7 +14,7 @@ import (
 	"github.com/miladrahimi/p-node/pkg/logger"
 	"github.com/miladrahimi/p-node/pkg/worker"
 	"github.com/miladrahimi/p-node/pkg/xray"
-	config2 "github.com/miladrahimi/p-node/pkg/xray/config"
+	xrayConfig "github.com/miladrahimi/p-node/pkg/xray/config"
 )
 
 // Coordinator represents the app coordinator which manages xray and database.
@@ -22,7 +22,7 @@ type Coordinator struct {
 	logger     *logger.Logger
 	context    context.Context
 	config     *config.Config
-	data       *database.Database[data.Data]
+	db         *database.Database[data.Data]
 	xray       *xray.Xray
 	httpClient *httpClient.Client
 }
@@ -40,7 +40,7 @@ func New(
 		logger:     l,
 		config:     c,
 		context:    ctx,
-		data:       d,
+		db:         d,
 		httpClient: hc,
 		xray:       x,
 	}
@@ -57,7 +57,7 @@ func (c *Coordinator) Run() {
 
 // Sync syncs the xray config with the associated P-Manager if it exists.
 func (c *Coordinator) Sync() error {
-	manager := c.data.Data().Manager
+	manager := c.db.Data().Manager
 	if manager == nil {
 		return nil
 	}
@@ -78,14 +78,14 @@ func (c *Coordinator) Sync() error {
 }
 
 // fetchConfig fetches the xray config from the given P-Manager.
-func (c *Coordinator) fetchConfig(manager *data.Manager) (*config2.Config, error) {
-	url := fmt.Sprintf("%s/configs", manager.Url)
+func (c *Coordinator) fetchConfig(manager *data.Manager) (*xrayConfig.Config, error) {
+	url := fmt.Sprintf("%s/config", manager.Url)
 	response, err := c.httpClient.Do("GET", url, manager.Token, nil)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	var xc config2.Config
+	var xc xrayConfig.Config
 	err = json.Unmarshal(response, &xc)
 	return &xc, errors.WithStack(err)
 }

@@ -23,11 +23,11 @@ import (
 
 // Server represents an HTTP server.
 type Server struct {
-	engine   *echo.Echo
-	config   *config.Config
-	logger   *logger.Logger
-	xray     *xray.Xray
-	database *database.Database[data.Data]
+	engine *echo.Echo
+	config *config.Config
+	logger *logger.Logger
+	xray   *xray.Xray
+	db     *database.Database[data.Data]
 }
 
 // New creates a new instance of HTTP Server.
@@ -36,7 +36,7 @@ func New(config *config.Config, l *logger.Logger, x *xray.Xray, d *database.Data
 	e.HideBanner = true
 	e.Validator = validator.New()
 
-	return &Server{engine: e, config: config, logger: l, xray: x, database: d}
+	return &Server{engine: e, config: config, logger: l, xray: x, db: d}
 }
 
 // Run defines the required HTTP routes and starts the HTTP Server.
@@ -51,13 +51,13 @@ func (s *Server) Run() {
 
 	// Authenticated APIs
 	g2 := s.engine.Group("")
-	g2.Use(cm.Authorize(func() string { return s.database.Data().Settings.HttpToken }))
-	g2.POST("/manager", rootHandler.ManagerStore(s.database))
+	g2.Use(cm.Authorize(func() string { return s.db.Data().Settings.HttpToken }))
+	g2.POST("/manager", rootHandler.ManagerStore(s.db))
 	g2.GET("/xray/stats", xrayHandler.StatsShow(s.xray))
 	g2.POST("/xray/config", xrayHandler.ConfigStore(s.xray))
 
 	go func() {
-		address := fmt.Sprintf("%s:%d", "0.0.0.0", s.database.Data().Settings.HttpPort)
+		address := fmt.Sprintf("%s:%d", "0.0.0.0", s.db.Data().Settings.HttpPort)
 		if err := s.engine.Start(address); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			s.logger.Fatal("http server: cannot start", zap.String("address", address), zap.Error(err))
 		}
