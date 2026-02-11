@@ -6,6 +6,7 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/labstack/echo/v4"
+	"github.com/miladrahimi/p-node/internal/coordinator"
 	"github.com/miladrahimi/p-node/internal/data"
 	"github.com/miladrahimi/p-node/pkg/database"
 )
@@ -16,7 +17,7 @@ type ManagerStoreRequest struct {
 }
 
 // ManagerStore stores the associated P-Manager config.
-func ManagerStore(db *database.Database[data.Data]) echo.HandlerFunc {
+func ManagerStore(db *database.Database[data.Data], cdr *coordinator.Coordinator) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var r ManagerStoreRequest
 		if err := c.Bind(&r); err != nil {
@@ -37,6 +38,10 @@ func ManagerStore(db *database.Database[data.Data]) echo.HandlerFunc {
 		}
 
 		if err := db.Save(); err != nil {
+			return errors.WithStack(err)
+		}
+
+		if err := cdr.Sync(); err != nil {
 			return errors.WithStack(err)
 		}
 

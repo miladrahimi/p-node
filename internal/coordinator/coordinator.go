@@ -57,24 +57,25 @@ func (c *Coordinator) Run() {
 
 // Sync syncs the xray config with the associated P-Manager if it exists.
 func (c *Coordinator) Sync() error {
-	manager := c.db.Data().Manager
+	d := c.db.Data()
+	manager := d.Manager
 	if manager == nil {
 		return nil
 	}
 
-	managerXrayConfig, err := c.fetchConfig(manager)
+	xrayConfigFromManager, err := c.fetchConfig(manager)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
 	localXrayConfig := c.xray.Config()
-	if localXrayConfig.Equals(managerXrayConfig) {
+	if localXrayConfig.Equals(xrayConfigFromManager) {
 		return nil
 	}
 
 	c.logger.Info("coordinator: reconfiguring xray...")
 
-	return errors.WithStack(c.xray.Reconfigure(managerXrayConfig))
+	return errors.WithStack(c.xray.Reconfigure(xrayConfigFromManager))
 }
 
 // fetchConfig fetches the xray config from the given P-Manager.

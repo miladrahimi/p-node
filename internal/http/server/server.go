@@ -10,6 +10,7 @@ import (
 	"github.com/labstack/echo/v4"
 	em "github.com/labstack/echo/v4/middleware"
 	"github.com/miladrahimi/p-node/internal/config"
+	"github.com/miladrahimi/p-node/internal/coordinator"
 	"github.com/miladrahimi/p-node/internal/data"
 	rootHandler "github.com/miladrahimi/p-node/internal/http/handlers"
 	xrayHandler "github.com/miladrahimi/p-node/internal/http/handlers/xray"
@@ -23,20 +24,27 @@ import (
 
 // Server represents an HTTP server.
 type Server struct {
-	engine *echo.Echo
-	config *config.Config
-	logger *logger.Logger
-	xray   *xray.Xray
-	db     *database.Database[data.Data]
+	engine      *echo.Echo
+	config      *config.Config
+	logger      *logger.Logger
+	xray        *xray.Xray
+	coordinator *coordinator.Coordinator
+	db          *database.Database[data.Data]
 }
 
 // New creates a new instance of HTTP Server.
-func New(config *config.Config, l *logger.Logger, x *xray.Xray, d *database.Database[data.Data]) *Server {
+func New(
+	c *config.Config,
+	l *logger.Logger,
+	x *xray.Xray,
+	cdr *coordinator.Coordinator,
+	db *database.Database[data.Data],
+) *Server {
 	e := echo.New()
 	e.HideBanner = true
 	e.Validator = validator.New()
 
-	return &Server{engine: e, config: config, logger: l, xray: x, db: d}
+	return &Server{engine: e, config: c, logger: l, xray: x, coordinator: cdr, db: db}
 }
 
 // Run defines the required HTTP routes and starts the HTTP Server.
@@ -52,7 +60,7 @@ func (s *Server) Run() {
 	// Authenticated APIs
 	g2 := s.engine.Group("")
 	g2.Use(cm.Authorize(func() string { return s.db.Data().Settings.HttpToken }))
-	g2.POST("/manager", rootHandler.ManagerStore(s.db))
+	g2.POST("/manager", rootHandler.ManagerStore(s.db, s.coordinator))
 	g2.GET("/xray/stats", xrayHandler.StatsShow(s.xray))
 	g2.POST("/xray/config", xrayHandler.ConfigStore(s.xray))
 
