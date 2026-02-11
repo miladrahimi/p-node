@@ -41,13 +41,6 @@ git config pull.rebase false
 # Configure storage permissions
 chmod 0777 "$ROOT/storage"
 
-# Temporary fix for v26.2.8
-# TODO: Remove this fix after v26.2.8 is released
-if [ ! -f "$ROOT/storage/database/data.json" ] && [ -f "$ROOT/storage/database/app.json" ]; then
-  cp -f "$ROOT/storage/database/app.json" "$ROOT/storage/database/data.json"
-fi
-rm -f "$ROOT/storage/database/app.json"
-
 # Validate the binary file
 BINARY_PATH="$ROOT/p-node"
 if [ ! -f "$BINARY_PATH" ]; then
