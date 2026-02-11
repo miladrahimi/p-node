@@ -15,7 +15,7 @@ import (
 	"github.com/miladrahimi/p-node/pkg/logger"
 	"github.com/miladrahimi/p-node/pkg/util"
 	xc "github.com/miladrahimi/p-node/pkg/xray/config"
-	xrayutil "github.com/miladrahimi/p-node/pkg/xray/util"
+	xrayUtil "github.com/miladrahimi/p-node/pkg/xray/util"
 	stats "github.com/xtls/xray-core/app/stats/command"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -45,15 +45,16 @@ func New(c context.Context, logger *logger.Logger, logLevel, configPath, binaryP
 	}
 }
 
-// Init initializes the Xray instance.
-func (x *Xray) Init() error {
+// Load loafs the stored configuration if already exist.
+func (x *Xray) Load() error {
 	x.locker.Lock()
 	defer x.locker.Unlock()
 
-	if err := x.saveConfig(); err != nil {
-		return errors.WithStack(err)
+	if util.FileExist(x.configPath) {
+		return errors.WithStack(x.loadConfig())
 	}
-	return errors.WithStack(x.loadConfig())
+
+	return errors.WithStack(x.saveConfig())
 }
 
 // Stop kills the Xray instance.
@@ -179,7 +180,7 @@ func (x *Xray) GenerateX25519() (string, string, error) {
 		return "", "", errors.WithMessage(err, "xray: x25519 failed: "+strings.TrimSpace(string(output)))
 	}
 
-	privateKey, password, err := xrayutil.ParseX25519Output(output)
+	privateKey, password, err := xrayUtil.ParseX25519Output(output)
 
 	return privateKey, password, errors.WithStack(err)
 }

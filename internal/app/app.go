@@ -74,9 +74,14 @@ func (a *App) Run() error {
 	if err := a.database.Init(); err != nil {
 		return errors.WithStack(err)
 	}
+
+	if err := a.xray.Load(); err != nil {
+		return errors.WithStack(err)
+	}
 	if err := a.xray.Run(); err != nil {
 		return errors.WithStack(err)
 	}
+
 	a.coordinator.Run()
 	a.httpServer.Run()
 
