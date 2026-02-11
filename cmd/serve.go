@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/cockroachdb/errors"
 	"github.com/miladrahimi/p-node/internal/app"
 	"github.com/spf13/cobra"
 )
@@ -24,12 +25,12 @@ func init() {
 func serve(_ *cobra.Command, _ []string) {
 	a, err := app.New()
 	if err != nil {
-		panic(fmt.Sprintf("%+v\n", err))
+		panic(fmt.Sprintf("%+v\n", errors.WithStack(err)))
 	}
 	defer a.Close()
 
 	if err = a.Run(); err != nil {
-		panic(fmt.Sprintf("%+v\n", err))
+		panic(fmt.Sprintf("%+v\n", errors.WithStack(err)))
 	}
 
 	a.Wait()
