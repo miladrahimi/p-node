@@ -22,7 +22,7 @@ type InboundSettings struct {
 }
 
 type Outbound struct {
-	Protocol       string            `json:"protocol" validate:"required,oneof=freedom blackhole vless"`
+	Protocol       string            `json:"protocol" validate:"required,oneof=freedom blackhole vless socks"`
 	Tag            string            `json:"tag,omitempty"`
 	Settings       *OutboundSettings `json:"settings,omitempty" validate:"omitempty"`
 	StreamSettings *StreamSettings   `json:"streamSettings,omitempty"`
@@ -107,8 +107,20 @@ type VlessOutboundServer struct {
 	Users   []*VlessUser `json:"users,omitempty" validate:"omitempty,dive"`
 }
 
+type SocksOutboundUser struct {
+	User string `json:"user,omitempty"`
+	Pass string `json:"pass,omitempty"`
+}
+
+type SocksOutboundServer struct {
+	Address string               `json:"address" validate:"required"`
+	Port    int                  `json:"port" validate:"required,min=1,max=65535"`
+	Users   []*SocksOutboundUser `json:"users,omitempty" validate:"omitempty,dive"`
+}
+
 type OutboundSettings struct {
-	Vnext []*VlessOutboundServer `json:"vnext,omitempty" validate:"omitempty,dive"`
+	Vnext   []*VlessOutboundServer `json:"vnext,omitempty" validate:"omitempty,dive"`
+	Servers []*SocksOutboundServer `json:"servers,omitempty" validate:"omitempty,dive"`
 }
 
 type VlessFallback struct {
