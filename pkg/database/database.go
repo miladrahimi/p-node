@@ -92,12 +92,13 @@ func (d *Database[T]) Backup() error {
 		return errors.WithStack(err)
 	}
 
-	path := strings.ToLower(fmt.Sprintf(d.backupPathTemplate(), time.Now().Format("Mon-15")))
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+	now := time.Now()
+	path := strings.ToLower(fmt.Sprintf(d.backupPathTemplate(), now.Format("Mon"), now.Format("15")))
+	if err = os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return errors.WithStack(err)
 	}
 
-	if err := os.WriteFile(path, bytes, 0644); err != nil {
+	if err = os.WriteFile(path, bytes, 0644); err != nil {
 		return errors.WithStack(err)
 	}
 
