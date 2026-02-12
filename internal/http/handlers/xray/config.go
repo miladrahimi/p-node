@@ -3,6 +3,7 @@ package xray
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/cockroachdb/errors"
 	"github.com/labstack/echo/v4"
@@ -28,16 +29,16 @@ func ConfigStore(x *xray.Xray) echo.HandlerFunc {
 
 		for _, i := range xc.Inbounds {
 			isFree := util.PortFree(i.Port)
-			if i.Tag != "api" && i.Tag != "remote" && !isFree {
+			if i.Tag != "api" && !strings.HasPrefix(i.Tag, "remote-") && !isFree {
 				return ctx.JSON(http.StatusUnprocessableEntity, map[string]string{
-					"message": fmt.Sprintf("The port '%s.%d' is already in use", i.Tag, i.Port),
+					"message": fmt.Sprintf("The port '%d' for '%s' is already in use", i.Port, i.Tag),
 				})
 			}
-			if i.Tag == "remote" && !isFree {
-				currentInbound := x.Config().FindInbound("remote")
+			if strings.HasPrefix(i.Tag, "remote-") && !isFree {
+				currentInbound := x.Config().FindInbound(i.Tag)
 				if currentInbound == nil || currentInbound.Port != i.Port {
 					return ctx.JSON(http.StatusUnprocessableEntity, map[string]string{
-						"message": fmt.Sprintf("The port '%s.%d' is already in use", i.Tag, i.Port),
+						"message": fmt.Sprintf("The port '%d' for '%s' is already in use", i.Port, i.Tag),
 					})
 				}
 			}
