@@ -30,7 +30,7 @@ type Outbound struct {
 
 type StreamSettings struct {
 	Network         string           `json:"network" validate:"required,oneof=tcp ws grpc raw xhttp"`
-	Security        string           `json:"security,omitempty" validate:"omitempty,oneof=tls reality"`
+	Security        string           `json:"security,omitempty" validate:"omitempty,oneof=tls reality none"`
 	TlsSettings     *TlsSettings     `json:"tlsSettings,omitempty"`
 	RealitySettings *RealitySettings `json:"realitySettings,omitempty"`
 	WsSettings      *WsSettings      `json:"wsSettings,omitempty"`
