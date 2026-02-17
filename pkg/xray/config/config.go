@@ -33,7 +33,7 @@ func New(logLevel string) *Config {
 		Inbounds: []*component.Inbound{
 			{
 				Tag:      "api",
-				Protocol: "dokodemo-door",
+				Protocol: "tunnel",
 				Listen:   "127.0.0.1",
 				Port:     3411,
 				Settings: &component.InboundSettings{

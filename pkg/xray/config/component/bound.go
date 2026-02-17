@@ -3,7 +3,7 @@ package component
 type Inbound struct {
 	Listen         string           `json:"listen,omitempty"`
 	Port           int              `json:"port,omitempty" validate:"omitempty,min=1,max=65535"`
-	Protocol       string           `json:"protocol" validate:"required,oneof=vless dokodemo-door socks"`
+	Protocol       string           `json:"protocol" validate:"required,oneof=vless tunnel dokodemo-door socks"`
 	Settings       *InboundSettings `json:"settings" validate:"required"`
 	StreamSettings *StreamSettings  `json:"streamSettings,omitempty"`
 	Sniffing       *Sniffing        `json:"sniffing,omitempty"`
@@ -11,9 +11,9 @@ type Inbound struct {
 }
 
 type InboundSettings struct {
-	Clients    []*VlessUser     `json:"clients,omitempty" validate:"omitempty,dive"`
-	Decryption string           `json:"decryption,omitempty" validate:"omitempty,oneof=none"`
-	Fallbacks  []*VlessFallback `json:"fallbacks,omitempty" validate:"omitempty,dive"`
+	Clients    []*Client   `json:"clients,omitempty" validate:"omitempty,dive"`
+	Decryption string      `json:"decryption,omitempty" validate:"omitempty,oneof=none"`
+	Fallbacks  []*Fallback `json:"fallbacks,omitempty" validate:"omitempty,dive"`
 
 	Address string `json:"address,omitempty"`
 	Port    int    `json:"port,omitempty" validate:"omitempty,min=1,max=65535"`
@@ -93,7 +93,7 @@ type XhttpSettings struct {
 	Path string `json:"path" validate:"required"`
 }
 
-type VlessUser struct {
+type Client struct {
 	Id         string `json:"id" validate:"required,min=1,max=64"`
 	Flow       string `json:"flow,omitempty" validate:"omitempty,max=64"`
 	Email      string `json:"email,omitempty" validate:"omitempty,max=255"`
@@ -101,29 +101,29 @@ type VlessUser struct {
 	Encryption string `json:"encryption,omitempty" validate:"omitempty,oneof=none"`
 }
 
-type VlessOutboundServer struct {
-	Address string       `json:"address" validate:"required"`
-	Port    int          `json:"port" validate:"required,min=1,max=65535"`
-	Users   []*VlessUser `json:"users,omitempty" validate:"omitempty,dive"`
+type Vnext struct {
+	Address string    `json:"address" validate:"required"`
+	Port    int       `json:"port" validate:"required,min=1,max=65535"`
+	Users   []*Client `json:"users,omitempty" validate:"omitempty,dive"`
 }
 
-type SocksOutboundUser struct {
+type ServerUser struct {
 	User string `json:"user,omitempty"`
 	Pass string `json:"pass,omitempty"`
 }
 
-type SocksOutboundServer struct {
-	Address string               `json:"address" validate:"required"`
-	Port    int                  `json:"port" validate:"required,min=1,max=65535"`
-	Users   []*SocksOutboundUser `json:"users,omitempty" validate:"omitempty,dive"`
+type Server struct {
+	Address string        `json:"address" validate:"required"`
+	Port    int           `json:"port" validate:"required,min=1,max=65535"`
+	Users   []*ServerUser `json:"users,omitempty" validate:"omitempty,dive"`
 }
 
 type OutboundSettings struct {
-	Vnext   []*VlessOutboundServer `json:"vnext,omitempty" validate:"omitempty,dive"`
-	Servers []*SocksOutboundServer `json:"servers,omitempty" validate:"omitempty,dive"`
+	Vnext   []*Vnext  `json:"vnext,omitempty" validate:"omitempty,dive"`
+	Servers []*Server `json:"servers,omitempty" validate:"omitempty,dive"`
 }
 
-type VlessFallback struct {
+type Fallback struct {
 	Dest int    `json:"dest,omitempty" validate:"omitempty,min=1,max=65535"`
 	Alpn string `json:"alpn,omitempty"`
 }
