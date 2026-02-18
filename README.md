@@ -1,5 +1,7 @@
 # P-Node
 
+P-Node is a lightweight Xray proxy node designed to work seamlessly with P-Manager.
+
 ## Documentation
 
 ### Installation
