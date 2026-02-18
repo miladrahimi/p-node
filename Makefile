@@ -25,6 +25,10 @@ build:
 setup:
 	@./scripts/setup.sh
 
+.PHONY: uninstall
+uninstall:
+	@./scripts/uninstall.sh
+
 .PHONY: update
 update:
 	@git fetch --all

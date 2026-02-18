@@ -42,6 +42,14 @@ Automatic updates are set up through cron jobs by default. For earlier updates, 
 make update
 ```
 
+### Uninstall
+
+Uninstalls the P-Node service, update cron job, and application directory.
+
+```shell
+sudo make uninstall
+```
+
 ### Status and Logs
 
 The application service is named after its directory, with `p-node` as the default in `systemd`.
