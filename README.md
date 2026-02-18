@@ -44,7 +44,7 @@ make update
 
 ### Uninstall
 
-Uninstalls the P-Node service, update cron job, and application directory.
+The command below uninstalls the P-Node service, update cron job, and application directory.
 
 ```shell
 sudo make uninstall
