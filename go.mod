@@ -5,7 +5,7 @@ go 1.25.7
 require (
 	github.com/cockroachdb/errors v1.12.0
 	github.com/go-playground/validator/v10 v10.30.1
-	github.com/labstack/echo/v4 v4.15.0
+	github.com/labstack/echo/v4 v4.15.1
 	github.com/labstack/gommon v0.4.2
 	github.com/spf13/cobra v1.10.2
 	github.com/xtls/xray-core v1.260206.0
