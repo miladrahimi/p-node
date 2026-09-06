@@ -102,11 +102,32 @@ else
   message="The app is not ready yet. Please try again..."
 fi
 
-printf "%s\n" "$message"
+printf "%s\n\n" "$message"
+
+# Full: P-Manager both pushes Xray config over HTTP and relays over SSH.
+printf "Full (Xray + SSH):\n"
 printf "{"
-printf "\"ip\":%s," "$(json_string "$ip")"
+printf "\"host\":%s," "$(json_string "$ip")"
 printf "\"http_port\":%s," "$(json_number "$http_port")"
 printf "\"http_token\":%s," "$(json_string "$http_token")"
 printf "\"ssh_port\":%s," "$(json_string "$ssh_port")"
 printf "\"ssh_user\":%s" "$(json_string "$ssh_user")"
+printf "}\n\n"
+
+# Xray-only: P-Manager pushes Xray config over HTTP; SSH relay disabled.
+printf "Xray-only:\n"
+printf "{"
+printf "\"host\":%s," "$(json_string "$ip")"
+printf "\"http_port\":%s," "$(json_number "$http_port")"
+printf "\"http_token\":%s," "$(json_string "$http_token")"
+printf "\"ssh_enabled\":false"
+printf "}\n\n"
+
+# SSH-only: P-Manager relays over SSH; HTTP push disabled.
+printf "SSH-only:\n"
+printf "{"
+printf "\"host\":%s," "$(json_string "$ip")"
+printf "\"ssh_port\":%s," "$(json_string "$ssh_port")"
+printf "\"ssh_user\":%s," "$(json_string "$ssh_user")"
+printf "\"push_enabled\":false"
 printf "}\n"
