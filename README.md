@@ -36,6 +36,10 @@ make setup
 make info
 ```
 
+`make info` prints three JSON variants — `Full` (Xray push + SSH), `Xray-only`,
+and `SSH-only`. Paste the one matching how P-Manager should use this node into
+the P-Manager "Add Node" input.
+
 ### Update
 
 Automatic updates are set up through cron jobs by default. For earlier updates, run the command below:
