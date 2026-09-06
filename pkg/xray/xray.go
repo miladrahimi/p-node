@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/cockroachdb/errors"
@@ -22,6 +23,12 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
+// ErrPortConflict is returned by Reconfigure when the inbound ports of the new config are not usable.
+var ErrPortConflict = errors.New("xray: port conflict")
+
+// apiTag is the tag of the inbound that serves the Xray gRPC API.
+const apiTag = "api"
+
 // Xray represents the Xray instance which is running in the background.
 type Xray struct {
 	l          *logger.Logger
@@ -29,6 +36,8 @@ type Xray struct {
 	configPath string
 	binaryPath string
 	command    *exec.Cmd
+	exited     chan struct{} // closed once the current process has exited
+	killed     *atomic.Bool  // set before the current process is killed on purpose
 	connection *grpc.ClientConn
 	locker     sync.Mutex
 	context    context.Context
@@ -45,13 +54,25 @@ func New(c context.Context, logger *logger.Logger, logLevel, configPath, binaryP
 	}
 }
 
-// Load loafs the stored configuration if already exist.
+// Load loads the stored configuration if it already exists and picks the API port for this process.
 func (x *Xray) Load() error {
 	x.locker.Lock()
 	defer x.locker.Unlock()
 
 	if util.FileExist(x.configPath) {
-		return errors.WithStack(x.loadConfig())
+		if err := x.loadConfig(); err != nil {
+			return errors.WithStack(err)
+		}
+	}
+
+	// The API inbound listens on a random free port chosen once per process;
+	// Reconfigure keeps it, so pushed and pulled configs never carry it.
+	if api := x.config.FindInbound(apiTag); api != nil {
+		port, err := util.FreePort()
+		if err != nil {
+			return errors.WithStack(err)
+		}
+		api.Port = port
 	}
 
 	return errors.WithStack(x.saveConfig())
@@ -73,65 +94,34 @@ func (x *Xray) Run() error {
 	return x.runLocked()
 }
 
-// Restart restarts the Xray instance.
-func (x *Xray) Restart() error {
-	x.locker.Lock()
-	defer x.locker.Unlock()
-
-	return x.restartLocked()
-}
-
-// Connect connects to the Xray API.
+// Connect creates the Xray API client if it does not exist yet.
+// The gRPC client dials lazily, so this never blocks on the Xray process.
 func (x *Xray) Connect() error {
 	x.locker.Lock()
-	if x.connection != nil {
-		x.locker.Unlock()
-		return nil
-	}
-	currentConfig := x.config
-	x.locker.Unlock()
-
-	x.l.Debug("xray: connecting to api...")
-
-	inbound := currentConfig.FindInbound("api")
-	if inbound == nil {
-		return errors.New("no api inbound")
-	}
-
-	ctx, cancel := context.WithTimeout(x.context, 10*time.Second)
-	defer cancel()
-
-	address := "127.0.0.1:" + strconv.Itoa(inbound.Port)
-
-	for {
-		select {
-		case <-ctx.Done():
-			return errors.New("connection to xray api timed out")
-		default:
-			time.Sleep(time.Second)
-			conn, err := grpc.NewClient(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
-			if err != nil {
-				x.l.Debug("xray: trying to Connect to api", zap.Error(errors.WithStack(err)))
-			} else {
-				x.locker.Lock()
-				x.connection = conn
-				x.locker.Unlock()
-				x.l.Debug("xray: connected to api successfully")
-				return nil
-			}
-		}
-	}
-}
-
-// Config returns the Xray config.
-func (x *Xray) Config() *xc.Config {
-	x.locker.Lock()
 	defer x.locker.Unlock()
 
-	return x.config
+	if x.connection != nil {
+		return nil
+	}
+
+	inbound := x.config.FindInbound(apiTag)
+	if inbound == nil {
+		return errors.New("xray: no api inbound")
+	}
+
+	address := "127.0.0.1:" + strconv.Itoa(inbound.Port)
+	conn, err := grpc.NewClient(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	x.connection = conn
+	x.l.Debug("xray: api client created", zap.String("address", address))
+	return nil
 }
 
-// Reconfigure sets the Xray config.
+// Reconfigure applies the given config and restarts Xray if it differs from the running one.
+// The API inbound port of the running instance is kept, so callers need not know it.
 func (x *Xray) Reconfigure(newConfig *xc.Config) error {
 	if newConfig == nil {
 		return errors.New("xray: config is nil")
@@ -143,11 +133,32 @@ func (x *Xray) Reconfigure(newConfig *xc.Config) error {
 	x.locker.Lock()
 	defer x.locker.Unlock()
 
+	if newApi := newConfig.FindInbound(apiTag); newApi != nil {
+		if currentApi := x.config.FindInbound(apiTag); currentApi != nil {
+			newApi.Port = currentApi.Port
+		} else {
+			port, err := util.FreePort()
+			if err != nil {
+				return errors.WithStack(err)
+			}
+			newApi.Port = port
+		}
+	}
+
+	if x.config.Equals(newConfig) {
+		x.l.Debug("xray: config unchanged, restart skipped")
+		return nil
+	}
+
+	if err := validatePorts(x.config, newConfig, util.PortFree); err != nil {
+		return err
+	}
+
 	x.config = newConfig
 	return x.restartLocked()
 }
 
-// QueryStats queries the Xray stats.
+// QueryStats queries the Xray stats and resets the counters.
 func (x *Xray) QueryStats() ([]*stats.Stat, error) {
 	if err := x.Connect(); err != nil {
 		return nil, errors.WithStack(err)
@@ -160,8 +171,11 @@ func (x *Xray) QueryStats() ([]*stats.Stat, error) {
 		return nil, errors.New("xray: api connection is not established")
 	}
 
+	ctx, cancel := context.WithTimeout(x.context, 10*time.Second)
+	defer cancel()
+
 	client := stats.NewStatsServiceClient(conn)
-	qs, err := client.QueryStats(context.Background(), &stats.QueryStatsRequest{Reset_: true})
+	qs, err := client.QueryStats(ctx, &stats.QueryStatsRequest{Reset_: true}, grpc.WaitForReady(true))
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -185,6 +199,48 @@ func (x *Xray) GenerateX25519() (string, string, error) {
 	return privateKey, password, errors.WithStack(err)
 }
 
+// validatePorts checks that the inbound ports of next are unique and either free or
+// currently held by the running instance described by current. The API inbound is
+// managed by Xray itself and is only checked for uniqueness.
+func validatePorts(current, next *xc.Config, portFree func(int) bool) error {
+	held := map[int]int{}
+	if current != nil {
+		for _, in := range current.Inbounds {
+			if in.Tag != apiTag && in.Port != 0 {
+				held[in.Port]++
+			}
+		}
+	}
+
+	seen := map[int]bool{}
+	apiCount := 0
+	for _, in := range next.Inbounds {
+		if in.Tag == apiTag {
+			if apiCount++; apiCount > 1 {
+				return errors.Wrap(ErrPortConflict, "only one api inbound is allowed")
+			}
+			continue
+		}
+		if in.Port == 0 {
+			continue
+		}
+		if seen[in.Port] {
+			return errors.Wrapf(ErrPortConflict, "port %d is used by multiple inbounds", in.Port)
+		}
+		seen[in.Port] = true
+
+		if held[in.Port] > 0 {
+			held[in.Port]--
+			continue
+		}
+		if !portFree(in.Port) {
+			return errors.Wrapf(ErrPortConflict, "port %d for '%s' is already in use", in.Port, in.Tag)
+		}
+	}
+
+	return nil
+}
+
 func (x *Xray) stopLocked() error {
 	x.l.Debug("xray: stopping...")
 
@@ -200,10 +256,16 @@ func (x *Xray) stopLocked() error {
 
 	if x.command != nil && x.command.Process != nil {
 		x.l.Debug("xray: killing the process...")
-		if err := x.command.Process.Kill(); err != nil {
+		x.killed.Store(true)
+		if err := x.command.Process.Kill(); err != nil && !errors.Is(err, os.ErrProcessDone) {
 			return errors.WithStack(err)
-		} else {
-			x.l.Debug("xray: the process killed")
+		}
+		// Wait for the process to release its ports before a successor is started.
+		select {
+		case <-x.exited:
+			x.l.Debug("xray: the process exited")
+		case <-time.After(10 * time.Second):
+			x.l.Error("xray: the process did not exit after kill")
 		}
 	}
 	x.command = nil
@@ -223,21 +285,26 @@ func (x *Xray) runLocked() error {
 	}
 
 	x.l.Debug("xray: running...")
-	x.command = exec.Command(x.binaryPath, "-c", x.configPath)
-	x.command.Stderr = os.Stderr
-	x.command.Stdout = os.Stdout
+	cmd := exec.Command(x.binaryPath, "-c", x.configPath)
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
 
 	x.l.Info("xray: executing the binary...", zap.String("path", x.binaryPath))
-	if err := x.command.Start(); err != nil {
-		x.command = nil
+	if err := cmd.Start(); err != nil {
 		return errors.WithStack(err)
 	}
 
-	go func(cmd *exec.Cmd) {
-		if err := cmd.Wait(); err != nil && err.Error() != "signal: killed" {
+	exited := make(chan struct{})
+	killed := &atomic.Bool{}
+	x.command, x.exited, x.killed = cmd, exited, killed
+
+	go func() {
+		err := cmd.Wait()
+		close(exited)
+		if !killed.Load() {
 			x.l.Fatal("xray: process exited unexpectedly", zap.Error(errors.WithStack(err)))
 		}
-	}(x.command)
+	}()
 
 	return nil
 }
@@ -255,11 +322,6 @@ func (x *Xray) restartLocked() error {
 // loadConfig loads the Xray config file.
 func (x *Xray) loadConfig() error {
 	x.l.Debug("xray: loading config file...")
-
-	if !util.FileExist(x.configPath) {
-		x.l.Debug("xray: no config file found, it is fresh")
-		return nil
-	}
 
 	content, err := os.ReadFile(x.configPath)
 	if err != nil {

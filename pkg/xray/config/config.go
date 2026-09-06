@@ -98,29 +98,6 @@ func (c *Config) FindInbound(tag string) *component.Inbound {
 	return nil
 }
 
-// FindOutbound finds an outbound by tag.
-func (c *Config) FindOutbound(tag string) *component.Outbound {
-	for _, outbound := range c.Outbounds {
-		if outbound.Tag == tag {
-			return outbound
-		}
-	}
-	return nil
-}
-
-// FindBalancer finds a balancer by tag.
-func (c *Config) FindBalancer(tag string) *component.Balancer {
-	if c.Routing == nil {
-		return nil
-	}
-	for _, balancer := range c.Routing.Balancers {
-		if balancer.Tag == tag {
-			return balancer
-		}
-	}
-	return nil
-}
-
 // Validate validates the xray config struct.
 func (c *Config) Validate() error {
 	if c.API != nil && c.FindInbound("api") == nil {

@@ -1,4 +1,7 @@
 {
+  "http_server": {
+    "port": 0
+  },
   "http_client": {
     "timeout": 30
   },

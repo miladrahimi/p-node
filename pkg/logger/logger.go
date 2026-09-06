@@ -69,11 +69,6 @@ func (l *Logger) Fatal(msg string, fields ...zap.Field) {
 	l.shutdown <- struct{}{}
 }
 
-// With creates a new logger with the given fields.
-func (l *Logger) With(fields ...zap.Field) *zap.Logger {
-	return l.e.With(fields...)
-}
-
 // Close closes the logger.
 func (l *Logger) Close() {
 	if err := l.e.Sync(); err != nil && !errors.Is(err, syscall.ENOTTY) {

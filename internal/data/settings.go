@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/labstack/gommon/random"
+	"github.com/miladrahimi/p-node/pkg/util"
 )
 
 // Settings is the settings struct.
@@ -23,9 +24,19 @@ func NewSettings(httpPort int, httpToken string) *Settings {
 
 // DefaultSettings returns the settings with default values.
 func DefaultSettings() *Settings {
+	return NewSettings(randomFreePort(), random.String(16))
+}
+
+// randomFreePort picks a random unprivileged port that is currently free.
+// It falls back to the last candidate if none of the attempts is free.
+func randomFreePort() int {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	return NewSettings(
-		r.Intn(64536)+1000,
-		random.String(16),
-	)
+	port := 0
+	for i := 0; i < 16; i++ {
+		port = r.Intn(64512) + 1024
+		if util.PortFree(port) {
+			break
+		}
+	}
+	return port
 }

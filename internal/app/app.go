@@ -74,6 +74,12 @@ func (a *App) Run() error {
 	if err := a.database.Init(); err != nil {
 		return errors.WithStack(err)
 	}
+	if p := a.config.HttpServer.Port; p != 0 && p != a.database.Data().Settings.HttpPort {
+		a.database.Data().Settings.HttpPort = p
+		if err := a.database.Save(); err != nil {
+			return errors.WithStack(err)
+		}
+	}
 
 	if err := a.xray.Load(); err != nil {
 		return errors.WithStack(err)

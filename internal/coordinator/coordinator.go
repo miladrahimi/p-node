@@ -50,7 +50,7 @@ func New(
 func (c *Coordinator) Run() {
 	c.logger.Info("coordinator: running...")
 
-	go worker.New("SyncWithManager", c.logger, 30*time.Second, func() error {
+	worker.New("SyncWithManager", c.logger, 30*time.Second, func() error {
 		return c.Sync()
 	}).Start(c.context)
 }
@@ -68,13 +68,7 @@ func (c *Coordinator) Sync() error {
 		return errors.WithStack(err)
 	}
 
-	localXrayConfig := c.xray.Config()
-	if localXrayConfig.Equals(xrayConfigFromManager) {
-		return nil
-	}
-
-	c.logger.Info("coordinator: reconfiguring xray...")
-
+	// Reconfigure is a no-op when the config matches the running one.
 	return errors.WithStack(c.xray.Reconfigure(xrayConfigFromManager))
 }
 

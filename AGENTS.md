@@ -18,7 +18,7 @@ It runs Xray binary, exposes a small HTTP API for stats/config updates, and pers
 - `pkg/http/validator`: Echo validator implementation based on `go-playground/validator`
 - `pkg/logger`: A logging wrapper around `zap` logger
 - `pkg/util`: Generic utils
-- `pkg/worker`: Simple worker implementation for periodic tasks
+- `pkg/worker`: Periodic worker (ticker loop with error logging and panic recovery), shared with P-Manager
 - `pkg/xray`: Xray wrapper (Xray process lifecycle, config model, gRPC stats)
 - `scripts`: Scripts for project and server setup
 - `storage`: Application data storage directory

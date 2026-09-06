@@ -100,5 +100,6 @@ if ! crontab -l | grep -q "$COMMAND"; then
 fi
 
 # Store update time
-rm -f ./storage/logs/*.log
-date '+%Y-%m-%d %H:%M:%S' > ./storage/app/update.txt
+rm -f "$ROOT"/storage/logs/*.log
+mkdir -p "$ROOT/storage/app"
+date '+%Y-%m-%d %H:%M:%S' > "$ROOT/storage/app/update.txt"

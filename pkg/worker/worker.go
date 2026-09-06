@@ -9,9 +9,10 @@ import (
 	"go.uber.org/zap"
 )
 
+// Task is the unit of work a worker runs on every tick.
 type Task func() error
 
-// Worker represents a worker that runs a function at a specified interval.
+// Worker runs a task at a fixed interval until its context is canceled.
 type Worker struct {
 	name     string
 	interval time.Duration
@@ -24,25 +25,33 @@ func New(name string, l *logger.Logger, interval time.Duration, task Task) *Work
 	return &Worker{name: name, logger: l, interval: interval, task: task}
 }
 
-// Start starts the worker.
+// Start starts the worker in the background.
 func (w *Worker) Start(ctx context.Context) {
-	ticker := time.NewTicker(w.interval)
 	go func() {
+		ticker := time.NewTicker(w.interval)
 		defer ticker.Stop()
 		for {
 			select {
 			case <-ctx.Done():
-				w.logger.Info(fmt.Sprintf("coordinator: worker '%s': stopped", w.name))
+				w.logger.Info(fmt.Sprintf("worker '%s': stopped", w.name))
 				return
 			case <-ticker.C:
-				w.logger.Info(fmt.Sprintf("coordinator: worker '%s': running...", w.name))
-				if err := w.task(); err != nil {
-					w.logger.Error(
-						fmt.Sprintf("coordinator: worker '%s': error", w.name),
-						zap.Error(err),
-					)
-				}
+				w.logger.Debug(fmt.Sprintf("worker '%s': running...", w.name))
+				w.run()
 			}
 		}
 	}()
+}
+
+// run executes the task once, logging errors and recovering from panics so one
+// bad tick does not take the process down.
+func (w *Worker) run() {
+	defer func() {
+		if r := recover(); r != nil {
+			w.logger.Error(fmt.Sprintf("worker '%s': recovered from panic: %v", w.name, r))
+		}
+	}()
+	if err := w.task(); err != nil {
+		w.logger.Error(fmt.Sprintf("worker '%s': error", w.name), zap.Error(err))
+	}
 }

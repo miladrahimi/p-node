@@ -15,6 +15,10 @@ const AppVersion = "v26.9.6"
 
 // Config represents the application configuration.
 type Config struct {
+	HttpServer struct {
+		Port int `json:"port" validate:"min=0,max=65535"` // 0 for random
+	} `json:"http_server" validate:"required"`
+
 	HttpClient struct {
 		Timeout int `json:"timeout" validate:"required,min=10,max=60000"`
 	} `json:"http_client" validate:"required"`
