@@ -6,6 +6,26 @@ P-Node is a lightweight Xray proxy node designed to work seamlessly with P-Manag
 
 ### Installation
 
+Run the one-line installer as root on a fresh Debian/Ubuntu server:
+
+```shell
+curl -fsSL https://raw.githubusercontent.com/miladrahimi/p-node/master/scripts/install.sh | sudo bash
+```
+
+Or with `wget`:
+
+```shell
+wget -qO- https://raw.githubusercontent.com/miladrahimi/p-node/master/scripts/install.sh | sudo bash
+```
+
+It installs the requirements, sets up the service, and prints the info required
+for P-Manager. `make info` output has three JSON variants — `Full` (Xray push +
+SSH), `Xray-only`, and `SSH-only`; paste the one matching how P-Manager should
+use this node into the P-Manager "Add Node" input.
+
+<details>
+<summary>Manual installation (advanced)</summary>
+
 1. Install the requirements
 
 ```shell
@@ -36,9 +56,7 @@ make setup
 make info
 ```
 
-`make info` prints three JSON variants — `Full` (Xray push + SSH), `Xray-only`,
-and `SSH-only`. Paste the one matching how P-Manager should use this node into
-the P-Manager "Add Node" input.
+</details>
 
 ### Update
 
