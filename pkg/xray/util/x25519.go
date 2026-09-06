@@ -21,14 +21,13 @@ func ParseX25519Output(output []byte) (string, string, error) {
 		if len(parts) != 2 {
 			continue
 		}
+		// xray labels the lines "PrivateKey" and "Password (PublicKey)".
 		key := strings.ToLower(strings.TrimSpace(parts[0]))
 		value := strings.TrimSpace(parts[1])
-		switch key {
-		case "privatekey":
+		switch {
+		case strings.HasPrefix(key, "privatekey"):
 			privateKey = value
-		case "password":
-			password = value
-		case "publickey":
+		case strings.HasPrefix(key, "password"):
 			password = value
 		}
 	}
