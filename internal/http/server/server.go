@@ -62,7 +62,7 @@ func (s *Server) Run() {
 	g2.Use(cm.Authorize(func() string { return s.db.Data().Settings.HttpToken }))
 	g2.POST("/manager", rootHandler.ManagerStore(s.db, s.coordinator))
 	g2.GET("/xray/stats", xrayHandler.StatsShow(s.xray))
-	g2.POST("/xray/config", xrayHandler.ConfigStore(s.xray))
+	g2.POST("/xray/config", xrayHandler.ConfigStore(s.coordinator))
 
 	go func() {
 		address := fmt.Sprintf("%s:%d", "0.0.0.0", s.db.Data().Settings.HttpPort)

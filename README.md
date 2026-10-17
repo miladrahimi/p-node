@@ -30,7 +30,7 @@ use this node into the P-Manager "Add Node" input.
 
 ```shell
 apt-get -y update
-apt-get -y install make wget jq curl vim git openssl cron
+apt-get -y install make wget jq curl vim git openssl cron iptables
 ```
 
 2. Install BBR (Optional)
@@ -100,7 +100,7 @@ The application logs will be stored in the following directory:
 
 ### Requirements
 
-* Operating systems: Debian or Ubuntu
+* Operating systems: Debian or Ubuntu (the service runs as root; Relay RR2PQ needs it for raw packets and `iptables`)
 * Architecture: `amd64`
 * RAM: 1 GB or more
 * CPU: 1 Core or more

@@ -31,6 +31,23 @@ type Config struct {
 		Level  string `json:"level" validate:"required,oneof=debug info warn error"`
 		Format string `json:"format" validate:"required,oneof='2006-01-02 15:04:05.000'"`
 	} `json:"logger" validate:"required"`
+
+	// Paqet overrides the network paqet sends raw packets on (Relay RR2PQ).
+	// Leave all three empty to detect the default-route interface, its IPv4
+	// address, and the gateway MAC at runtime.
+	Paqet PaqetNetwork `json:"paqet"`
+}
+
+// PaqetNetwork is the optional paqet network override.
+type PaqetNetwork struct {
+	Interface string `json:"interface" validate:"max=15"`
+	Address   string `json:"address" validate:"omitempty,ipv4"`
+	RouterMac string `json:"router_mac" validate:"omitempty,mac"`
+}
+
+// Set reports whether the override is set (all three fields).
+func (p PaqetNetwork) Set() bool {
+	return p.Interface != "" && p.Address != "" && p.RouterMac != ""
 }
 
 // New creates a new instance of Config and loads the default and local config files.

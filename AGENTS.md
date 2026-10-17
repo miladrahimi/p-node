@@ -9,7 +9,7 @@ It runs Xray binary, exposes a small HTTP API for stats/config updates, and pers
 - `configs`: Configuration files
 - `internal/app`: App lifecycle orchestration
 - `internal/config`: Configuration loader, constants, and paths
-- `internal/coordinator`: Periodic sync between current state, local Xray process, and P-Manager
+- `internal/coordinator`: Periodic sync between current state, local Xray process, paqet server, and P-Manager (`Apply` reconfigures both from one pushed/pulled config)
 - `internal/data`: database schema, models and default values
 - `internal/http`: Echo HTTP server, routes, and API handlers
 - `pkg/database`: Simple generic file-backed JSON store
@@ -17,6 +17,7 @@ It runs Xray binary, exposes a small HTTP API for stats/config updates, and pers
 - `pkg/http/middleware`: Shared middleware used in this project and P-Manager
 - `pkg/http/validator`: Echo validator implementation based on `go-playground/validator`
 - `pkg/logger`: A logging wrapper around `zap` logger
+- `pkg/paqet`: Runs the [paqet](https://github.com/hanselime/paqet) binary (raw-packet KCP tunnel) as a supervised child process in server or client role from a generated YAML config; detects the network it needs (default-route interface, IPv4, gateway MAC) and manages the iptables rules a server needs. Shared with P-Manager (which runs the clients)
 - `pkg/util`: Generic utils
 - `pkg/worker`: Periodic worker (ticker loop with error logging and panic recovery), shared with P-Manager
 - `pkg/xray`: Xray wrapper (Xray process lifecycle, config model, gRPC stats)
@@ -55,6 +56,7 @@ It runs Xray binary, exposes a small HTTP API for stats/config updates, and pers
 ## Key Behavior Notes / Gotchas
 - `pkg/http/client` skips TLS verification (intentionally).
 - `settings.http_token` is generated randomly on first run (see `internal/data/settings.go`).
+- The Xray config from P-Manager may carry a `_paqet` field (`component.Paqet`: port + key) for Relay RR2PQ; the node then runs a paqet server on that port next to Xray (config `storage/app/paqet.yaml`, log `storage/logs/paqet.log`). paqet needs root (pcap) and, on Linux, `iptables` (installed by `make setup`). The network it sends on is auto-detected; override it with the `paqet` block in `configs/main.json`.
 - `make update` is destructive (`git reset --hard` + `git clean -fd`).
 - Use Java-style camelCase for namings (`UserId` instead of `userID`, `clientId` is `clientID`, etc.)
 

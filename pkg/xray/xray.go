@@ -78,6 +78,13 @@ func (x *Xray) Load() error {
 	return errors.WithStack(x.saveConfig())
 }
 
+// Config returns the current config (the running one, or the stored one before Run).
+func (x *Xray) Config() *xc.Config {
+	x.locker.Lock()
+	defer x.locker.Unlock()
+	return x.config
+}
+
 // Stop kills the Xray instance.
 func (x *Xray) Stop() error {
 	x.locker.Lock()

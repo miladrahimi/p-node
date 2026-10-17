@@ -14,6 +14,7 @@ import (
 	"github.com/miladrahimi/p-node/pkg/database"
 	"github.com/miladrahimi/p-node/pkg/http/client"
 	"github.com/miladrahimi/p-node/pkg/logger"
+	"github.com/miladrahimi/p-node/pkg/paqet"
 	"github.com/miladrahimi/p-node/pkg/xray"
 	"go.uber.org/zap"
 )
@@ -28,6 +29,7 @@ type App struct {
 	httpServer  *server.Server
 	httpClient  *client.Client
 	xray        *xray.Xray
+	paqet       *paqet.Paqet
 	coordinator *coordinator.Coordinator
 	database    *database.Database[data.Data]
 }
@@ -59,7 +61,8 @@ func New() (a *App, err error) {
 
 	a.xray = xray.New(a.context, l, c.Xray.LogLevel, config.XrayConfigPath(root), config.XrayBinaryPath(root))
 	a.httpClient = client.New(c.HttpClient.Timeout, config.AppName, config.AppVersion)
-	a.coordinator = coordinator.New(a.context, l, c, a.database, a.httpClient, a.xray)
+	a.paqet = paqet.New(l, config.PaqetBinaryPath(root), config.PaqetConfigPath(root), config.PaqetLogPath(root))
+	a.coordinator = coordinator.New(a.context, l, c, a.database, a.httpClient, a.xray, a.paqet)
 	a.httpServer = server.New(c, l, a.xray, a.coordinator, a.database)
 
 	l.Debug("app: constructed successfully")
@@ -88,6 +91,11 @@ func (a *App) Run() error {
 		return errors.WithStack(err)
 	}
 
+	// The paqet server (Relay RR2PQ) is optional; a failure must not block the node.
+	if err := a.coordinator.ApplyStored(); err != nil {
+		a.logger.Error("app: cannot start paqet", zap.Error(err))
+	}
+
 	a.coordinator.Run()
 	a.httpServer.Run()
 
@@ -114,6 +122,11 @@ func (a *App) Close() {
 	if a.xray != nil {
 		if err := a.xray.Stop(); err != nil {
 			a.logger.Error("cannot close xray", zap.Error(errors.WithStack(err)))
+		}
+	}
+	if a.coordinator != nil {
+		if err := a.coordinator.Close(); err != nil {
+			a.logger.Error("cannot close paqet", zap.Error(errors.WithStack(err)))
 		}
 	}
 	if a.logger != nil {

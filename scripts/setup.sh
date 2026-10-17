@@ -8,7 +8,7 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 1
 fi
 
-REQUIRED_PACKAGES=("make" "wget" "curl" "jq" "vim" "git" "openssl" "cron")
+REQUIRED_PACKAGES=("make" "wget" "curl" "jq" "vim" "git" "openssl" "cron" "iptables")
 
 # Update OS repositories if needed
 UPDATE_NEEDED=false

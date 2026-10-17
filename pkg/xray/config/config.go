@@ -20,6 +20,7 @@ type Config struct {
 	Routing   *component.Routing    `json:"routing,omitempty" validate:"omitempty"`
 	Reverse   *component.Reverse    `json:"reverse,omitempty" validate:"omitempty"`
 	Metadata  *component.Metadata   `json:"_metadata,omitempty" validate:"omitempty"`
+	Paqet     *component.Paqet      `json:"_paqet,omitempty" validate:"omitempty"`
 }
 
 // New creates a new xray config struct.
