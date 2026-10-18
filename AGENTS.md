@@ -14,6 +14,7 @@ It runs Xray binary, exposes a small HTTP API for stats/config updates, and pers
 - `internal/http`: Echo HTTP server, routes, and API handlers
 - `pkg/database`: Simple generic file-backed JSON store
 - `pkg/http/client`: HTTP client
+- `pkg/http/logs`: Log file index + `tail -f` stream handlers for `storage/logs`, shared with P-Manager (which serves its own logs with them and proxies node logs)
 - `pkg/http/middleware`: Shared middleware used in this project and P-Manager
 - `pkg/http/validator`: Echo validator implementation based on `go-playground/validator`
 - `pkg/logger`: A logging wrapper around `zap` logger
@@ -44,6 +45,7 @@ It runs Xray binary, exposes a small HTTP API for stats/config updates, and pers
 - Requests and responses are in JSON format
 - Authentication is token-based, token is stored in database (`http_token` in `internal/data/settings.go`)
 - Header `Authorization: Bearer <token>` is checked for authenticated routes
+- Routes (`internal/http/server/server.go`): public `GET /`; authenticated `POST /manager` (pull URL/token), `GET /xray/stats`, `POST /xray/config` (push), `GET /logs` (lists the `*.log` files under `storage/logs`) and `GET /logs/:name?lines=N` (chunked `text/plain` `tail -f` of one file: last N lines, then appended bytes, until the client disconnects or the app stops)
 
 ## Major Dependencies
 - `github.com/xtls/xray-core`: Interaction with running Xray process

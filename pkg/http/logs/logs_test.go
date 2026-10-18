@@ -1,0 +1,199 @@
+package logs
+
+import (
+	"context"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"path/filepath"
+	"strings"
+	"testing"
+	"time"
+
+	"github.com/labstack/echo/v4"
+)
+
+func TestWriteTail(t *testing.T) {
+	dir := t.TempDir()
+	cases := []struct {
+		content string
+		n       int
+		want    string
+	}{
+		{"a\nb\nc\nd\n", 2, "c\nd\n"},
+		{"a\nb\nc\nd", 2, "c\nd"},
+		{"a\nb\n", 10, "a\nb\n"},
+		{"a\nb\n", 0, ""},
+		{"", 3, ""},
+		{"single", 1, "single"},
+	}
+	for i, tc := range cases {
+		path := filepath.Join(dir, "t.log")
+		if err := os.WriteFile(path, []byte(tc.content), 0644); err != nil {
+			t.Fatal(err)
+		}
+		f, err := os.Open(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var sb strings.Builder
+		offset, err := writeTail(&sb, f, tc.n)
+		_ = f.Close()
+		if err != nil {
+			t.Fatalf("case %d: %v", i, err)
+		}
+		if sb.String() != tc.want {
+			t.Errorf("case %d: got %q, want %q", i, sb.String(), tc.want)
+		}
+		if offset != int64(len(tc.content)) {
+			t.Errorf("case %d: offset %d, want %d", i, offset, len(tc.content))
+		}
+	}
+}
+
+func TestIndex(t *testing.T) {
+	dir := t.TempDir()
+	for _, name := range []string{"app-std.log", "xray-error.log", "data.json"} {
+		if err := os.WriteFile(filepath.Join(dir, name), []byte("x\n"), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := os.Mkdir(filepath.Join(dir, "nested.log"), 0755); err != nil {
+		t.Fatal(err)
+	}
+	e := echo.New()
+	rec := httptest.NewRecorder()
+	c := e.NewContext(httptest.NewRequest(http.MethodGet, "/", nil), rec)
+	if err := Index(dir)(c); err != nil {
+		t.Fatal(err)
+	}
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status %d", rec.Code)
+	}
+	body := rec.Body.String()
+	for _, want := range []string{`"name":"app-std.log"`, `"name":"xray-error.log"`} {
+		if !strings.Contains(body, want) {
+			t.Errorf("missing %s in %s", want, body)
+		}
+	}
+	for _, unwanted := range []string{"data.json", "nested.log"} {
+		if strings.Contains(body, unwanted) {
+			t.Errorf("unexpected %s in %s", unwanted, body)
+		}
+	}
+}
+
+func TestStream(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "app.log")
+	if err := os.WriteFile(path, []byte("l1\nl2\nl3\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	e := echo.New()
+	ctx, cancel := context.WithCancel(context.Background())
+	req := httptest.NewRequest(http.MethodGet, "/logs/app.log?lines=2", nil).WithContext(ctx)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetParamNames("name")
+	c.SetParamValues("app.log")
+
+	done := make(chan error, 1)
+	go func() { done <- Stream(dir, nil)(c) }()
+
+	step := 3 * PollInterval
+	time.Sleep(step)
+	appendFile(t, path, "l4\n")
+	time.Sleep(step)
+	// Truncate: the stream must restart from the beginning of the file.
+	if err := os.WriteFile(path, []byte("n1\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	time.Sleep(step)
+	// Replace: remove and recreate, like `make clean` followed by new logs.
+	if err := os.Remove(path); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(path, []byte("r1\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	time.Sleep(step)
+	cancel()
+
+	select {
+	case err := <-done:
+		if err != nil {
+			t.Fatal(err)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("stream did not stop after the request context was cancelled")
+	}
+
+	if got, want := rec.Body.String(), "l2\nl3\nl4\nn1\nr1\n"; got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+	if ct := rec.Header().Get(echo.HeaderContentType); !strings.HasPrefix(ct, "text/plain") {
+		t.Errorf("content type %q", ct)
+	}
+}
+
+func TestStreamRejectsBadNames(t *testing.T) {
+	dir := t.TempDir()
+	e := echo.New()
+	for _, name := range []string{"../main.json", "data.json", "missing.log", ""} {
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetParamNames("name")
+		c.SetParamValues(name)
+		if err := Stream(dir, nil)(c); err != nil {
+			t.Fatal(err)
+		}
+		if rec.Code != http.StatusNotFound {
+			t.Errorf("%q: status %d, want 404", name, rec.Code)
+		}
+	}
+}
+
+func TestStreamStopsOnDone(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "app.log"), []byte("l1\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetParamNames("name")
+	c.SetParamValues("app.log")
+
+	done := make(chan struct{})
+	finished := make(chan error, 1)
+	go func() { finished <- Stream(dir, done)(c) }()
+	time.Sleep(2 * PollInterval)
+	close(done)
+
+	select {
+	case err := <-finished:
+		if err != nil {
+			t.Fatal(err)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("stream did not stop after done was closed")
+	}
+	if got := rec.Body.String(); got != "l1\n" {
+		t.Errorf("got %q", got)
+	}
+}
+
+func appendFile(t *testing.T, path, content string) {
+	t.Helper()
+	f, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = f.Close() }()
+	if _, err = f.WriteString(content); err != nil {
+		t.Fatal(err)
+	}
+}

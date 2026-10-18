@@ -63,7 +63,7 @@ func New() (a *App, err error) {
 	a.httpClient = client.New(c.HttpClient.Timeout, config.AppName, config.AppVersion)
 	a.paqet = paqet.New(l, config.PaqetBinaryPath(root), config.PaqetConfigPath(root), config.PaqetLogPath(root))
 	a.coordinator = coordinator.New(a.context, l, c, a.database, a.httpClient, a.xray, a.paqet)
-	a.httpServer = server.New(c, l, a.xray, a.coordinator, a.database)
+	a.httpServer = server.New(c, l, a.xray, a.coordinator, a.database, config.LogsDirectory(root), a.context.Done())
 
 	l.Debug("app: constructed successfully")
 

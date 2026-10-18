@@ -15,6 +15,7 @@ import (
 	rootHandler "github.com/miladrahimi/p-node/internal/http/handlers"
 	xrayHandler "github.com/miladrahimi/p-node/internal/http/handlers/xray"
 	"github.com/miladrahimi/p-node/pkg/database"
+	"github.com/miladrahimi/p-node/pkg/http/logs"
 	cm "github.com/miladrahimi/p-node/pkg/http/middleware"
 	"github.com/miladrahimi/p-node/pkg/http/validator"
 	"github.com/miladrahimi/p-node/pkg/logger"
@@ -30,6 +31,8 @@ type Server struct {
 	xray        *xray.Xray
 	coordinator *coordinator.Coordinator
 	db          *database.Database[data.Data]
+	logsDir     string
+	done        <-chan struct{} // closed on shutdown so long-lived streams end
 }
 
 // New creates a new instance of HTTP Server.
@@ -39,12 +42,14 @@ func New(
 	x *xray.Xray,
 	cdr *coordinator.Coordinator,
 	db *database.Database[data.Data],
+	logsDir string,
+	done <-chan struct{},
 ) *Server {
 	e := echo.New()
 	e.HideBanner = true
 	e.Validator = validator.New()
 
-	return &Server{engine: e, config: c, logger: l, xray: x, coordinator: cdr, db: db}
+	return &Server{engine: e, config: c, logger: l, xray: x, coordinator: cdr, db: db, logsDir: logsDir, done: done}
 }
 
 // Run defines the required HTTP routes and starts the HTTP Server.
@@ -63,6 +68,9 @@ func (s *Server) Run() {
 	g2.POST("/manager", rootHandler.ManagerStore(s.db, s.coordinator))
 	g2.GET("/xray/stats", xrayHandler.StatsShow(s.xray))
 	g2.POST("/xray/config", xrayHandler.ConfigStore(s.coordinator))
+	// Logs: the stream is a long-lived chunked text response (tail -f).
+	g2.GET("/logs", logs.Index(s.logsDir))
+	g2.GET("/logs/:name", logs.Stream(s.logsDir, s.done))
 
 	go func() {
 		address := fmt.Sprintf("%s:%d", "0.0.0.0", s.db.Data().Settings.HttpPort)

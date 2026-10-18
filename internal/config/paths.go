@@ -39,6 +39,11 @@ func PaqetLogPath(root string) string {
 	return filepath.Join(root, "storage/logs/paqet.log")
 }
 
+// LogsDirectory returns the path of the logs directory.
+func LogsDirectory(root string) string {
+	return filepath.Join(root, "storage/logs")
+}
+
 // defaultConfigPath returns the path of the default config file.
 func defaultConfigPath(root string) string {
 	return filepath.Join(root, "configs/main.defaults.json")
