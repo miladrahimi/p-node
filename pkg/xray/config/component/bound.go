@@ -45,9 +45,12 @@ type TlsSettings struct {
 	Fingerprint  string         `json:"fingerprint,omitempty"`
 }
 
+// Certificate is a TLS certificate, given either as files or inline as PEM lines.
 type Certificate struct {
-	CertificateFile string `json:"certificateFile" validate:"required"`
-	KeyFile         string `json:"keyFile" validate:"required"`
+	CertificateFile string   `json:"certificateFile,omitempty" validate:"required_without=Certificate"`
+	KeyFile         string   `json:"keyFile,omitempty" validate:"required_without=Key"`
+	Certificate     []string `json:"certificate,omitempty"`
+	Key             []string `json:"key,omitempty"`
 }
 
 type RealitySettings struct {
@@ -91,6 +94,8 @@ type GrpcSettings struct {
 
 type XhttpSettings struct {
 	Path string `json:"path" validate:"required"`
+	Host string `json:"host,omitempty"`
+	Mode string `json:"mode,omitempty" validate:"omitempty,oneof=auto packet-up stream-up stream-one"`
 }
 
 type Client struct {
