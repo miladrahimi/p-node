@@ -151,6 +151,12 @@ func (p *Paqet) stopLocked() error {
 	if p.config != nil && p.config.Port > 0 {
 		disallowPort(p.l, p.config.Port)
 	}
+	// The config file holds the shared key and is rewritten on every start, so
+	// a stopped process leaves nothing behind (a removed node would otherwise
+	// keep its paqet-<id>.yaml forever).
+	if err := os.Remove(p.configPath); err != nil && !errors.Is(err, os.ErrNotExist) {
+		p.l.Error("paqet: cannot remove the config file", zap.String("config", p.configPath), zap.Error(err))
+	}
 	p.cmd = nil
 	p.config = nil
 	return nil
