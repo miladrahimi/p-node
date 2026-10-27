@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -135,6 +136,55 @@ func TestStream(t *testing.T) {
 	if ct := rec.Header().Get(echo.HeaderContentType); !strings.HasPrefix(ct, "text/plain") {
 		t.Errorf("content type %q", ct)
 	}
+}
+
+func TestStreamHeartbeat(t *testing.T) {
+	saved := HeartbeatInterval
+	HeartbeatInterval = 2 * PollInterval
+	defer func() { HeartbeatInterval = saved }()
+
+	dir := t.TempDir()
+	path := filepath.Join(dir, "app.log")
+	if err := os.WriteFile(path, []byte("l1\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	e := echo.New()
+	ctx, cancel := context.WithCancel(context.Background())
+	req := httptest.NewRequest(http.MethodGet, "/logs/app.log", nil).WithContext(ctx)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetParamNames("name")
+	c.SetParamValues("app.log")
+
+	done := make(chan error, 1)
+	go func() { done <- Stream(dir, nil)(c) }()
+
+	// The exact number of heartbeats depends on timing; the shape does not.
+	expect := func(pattern string) {
+		t.Helper()
+		if got := rec.Body.String(); !regexp.MustCompile(pattern).MatchString(got) {
+			t.Errorf("got %q, want /%s/", got, pattern)
+		}
+	}
+
+	// Quiet file: heartbeats (empty lines) arrive after HeartbeatInterval.
+	time.Sleep(HeartbeatInterval + 2*PollInterval)
+	expect(`^l1\n\n+$`)
+
+	// A partial line is never split by a heartbeat, however long it stays open.
+	appendFile(t, path, "part")
+	time.Sleep(2*HeartbeatInterval + 2*PollInterval)
+	expect(`^l1\n\n+part$`)
+
+	// Once the line completes, heartbeats resume at the boundary.
+	appendFile(t, path, "ial\n")
+	time.Sleep(HeartbeatInterval + 2*PollInterval)
+	cancel()
+	if err := <-done; err != nil {
+		t.Fatal(err)
+	}
+	expect(`^l1\n\n+partial\n\n+$`)
 }
 
 func TestStreamRejectsBadNames(t *testing.T) {

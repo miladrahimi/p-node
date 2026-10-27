@@ -29,6 +29,12 @@ const (
 	PollInterval = 500 * time.Millisecond
 )
 
+// HeartbeatInterval is how long a stream may stay silent before it sends an
+// empty line: reverse proxies drop an idle upstream response (nginx after 60s
+// by default), and the heartbeat keeps a quiet log file's stream open. It is
+// only sent at a line boundary, so a line never gets split.
+var HeartbeatInterval = 15 * time.Second
+
 // File describes one log file in the index response.
 type File struct {
 	Name       string `json:"name"`
@@ -92,7 +98,8 @@ func Stream(dir string, done <-chan struct{}) echo.HandlerFunc {
 		res.Header().Set("X-Accel-Buffering", "no")
 		res.WriteHeader(http.StatusOK)
 
-		offset, err := writeTail(res, file, tail)
+		out := &lineWriter{w: res}
+		offset, err := writeTail(out, file, tail)
 		if err != nil {
 			return nil
 		}
@@ -100,6 +107,7 @@ func Stream(dir string, done <-chan struct{}) echo.HandlerFunc {
 			return nil
 		}
 		res.Flush()
+		lastWrite := time.Now()
 
 		ticker := time.NewTicker(PollInterval)
 		defer ticker.Stop()
@@ -111,6 +119,14 @@ func Stream(dir string, done <-chan struct{}) echo.HandlerFunc {
 			case <-done:
 				return nil
 			case <-ticker.C:
+			}
+
+			if time.Since(lastWrite) >= HeartbeatInterval && out.atLineStart() {
+				if _, err = out.Write([]byte("\n")); err != nil {
+					return nil
+				}
+				res.Flush()
+				lastWrite = time.Now()
 			}
 
 			opened, err := file.Stat()
@@ -133,16 +149,37 @@ func Stream(dir string, done <-chan struct{}) echo.HandlerFunc {
 				}
 			}
 
-			n, err := io.Copy(res, file)
+			n, err := io.Copy(out, file)
 			offset += n
 			if err != nil {
 				return nil
 			}
 			if n > 0 {
 				res.Flush()
+				lastWrite = time.Now()
 			}
 		}
 	}
+}
+
+// lineWriter forwards writes and remembers whether the last byte written was
+// a newline, so a heartbeat can be sent without splitting a line.
+type lineWriter struct {
+	w    io.Writer
+	last byte
+}
+
+func (l *lineWriter) Write(p []byte) (int, error) {
+	n, err := l.w.Write(p)
+	if n > 0 {
+		l.last = p[n-1]
+	}
+	return n, err
+}
+
+// atLineStart reports whether nothing or a complete line was written last.
+func (l *lineWriter) atLineStart() bool {
+	return l.last == 0 || l.last == '\n'
 }
 
 // writeTail writes the last n lines of file to w (reading at absolute offsets,

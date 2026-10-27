@@ -107,14 +107,24 @@ func (c *Config) Validate() error {
 	return errors.WithStack(validator.New(validator.WithRequiredStructEnabled()).Struct(c))
 }
 
-// Equals checks if two config structs are equal.
+// Equals reports whether other is the same Xray config. The _metadata block
+// (who pushed the config and when) is not part of it: P-Manager stamps every
+// push with a fresh timestamp, and a config that only differs there must not
+// restart Xray (which drops every connection and zeroes the counters).
 func (c *Config) Equals(other *Config) bool {
-	json1, err := json.Marshal(c)
+	if c == nil || other == nil {
+		return c == other
+	}
+
+	a, b := *c, *other
+	a.Metadata, b.Metadata = nil, nil
+
+	json1, err := json.Marshal(&a)
 	if err != nil {
 		return false
 	}
 
-	json2, err := json.Marshal(other)
+	json2, err := json.Marshal(&b)
 	if err != nil {
 		return false
 	}
