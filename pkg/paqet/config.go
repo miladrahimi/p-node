@@ -96,7 +96,7 @@ func (c *Config) Yaml() string {
 	if c.Port > 0 {
 		return fmt.Sprintf(`role: "server"
 log:
-  level: "info"
+  level: "warn"
 listen:
   addr: ":%d"
 network:
@@ -114,7 +114,7 @@ transport:
 	}
 	return fmt.Sprintf(`role: "client"
 log:
-  level: "info"
+  level: "warn"
 socks5:
   - listen: %q
 network:

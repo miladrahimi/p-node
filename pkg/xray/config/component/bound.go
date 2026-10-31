@@ -79,9 +79,10 @@ type RealitySettings struct {
 }
 
 type Sniffing struct {
-	Enabled      bool     `json:"enabled"`
-	DestOverride []string `json:"destOverride,omitempty"`
-	RouteOnly    bool     `json:"routeOnly,omitempty"`
+	Enabled         bool     `json:"enabled"`
+	DestOverride    []string `json:"destOverride,omitempty"`
+	DomainsExcluded []string `json:"domainsExcluded,omitempty"`
+	RouteOnly       bool     `json:"routeOnly,omitempty"`
 }
 
 type WsSettings struct {

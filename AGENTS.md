@@ -60,6 +60,12 @@ It runs Xray binary, exposes a small HTTP API for stats/config updates, and pers
 - `settings.http_token` is generated randomly on first run (see `internal/data/settings.go`).
 - The Xray config from P-Manager may carry a `_paqet` field (`component.Paqet`: port + key) for Relay RR2PQ; the node then runs a paqet server on that port next to Xray (config `storage/app/paqet.yaml`, log `storage/logs/paqet.log`). paqet needs root (pcap) and, on Linux, `iptables` (installed by `make setup`). The network it sends on is auto-detected; override it with the `paqet` block in `configs/main.json`.
 - `make update` is destructive (`git reset --hard` + `git clean -fd`).
+- `xrayConfig.Config.Equals` ignores `_metadata`: P-Manager stamps every push with a fresh `updatedAt`, and comparing
+  it restarted Xray (dropping every user) on each push, hourly in practice (2026-10-27).
+- Quiet logs by default (2026-10-31): Xray `log_level` defaults to `warning` (at `info` it wrote ~30 MB a day of dial
+  lines on a small node) and the generated paqet configs log at `warn` (`info` logged every stream). `config.New`
+  rewrites `configs/main.json` with every merged value, so an existing install keeps the level it had: set
+  `xray.log_level` in its `main.json` to change it (`info` or `debug` when debugging).
 - Use Java-style camelCase for namings (`UserId` instead of `userID`, `clientId` is `clientID`, etc.)
 
 ## Xray
