@@ -19,7 +19,7 @@ local-fresh:
 
 .PHONY: build
 build:
-	@GOOS=linux GOARCH=amd64 go build -o p-node
+	@GOOS=linux GOARCH=amd64 go build -trimpath -o p-node
 
 .PHONY: setup
 setup:

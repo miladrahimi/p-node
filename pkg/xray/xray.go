@@ -85,6 +85,14 @@ func (x *Xray) Config() *xc.Config {
 	return x.config
 }
 
+// Running reports whether the Xray process has been started and not stopped.
+// An unexpected exit is fatal, so a started process is a live one.
+func (x *Xray) Running() bool {
+	x.locker.Lock()
+	defer x.locker.Unlock()
+	return x.command != nil
+}
+
 // Stop kills the Xray instance.
 func (x *Xray) Stop() error {
 	x.locker.Lock()
