@@ -11,7 +11,7 @@ import (
 )
 
 const AppName = "P-Node"
-const AppVersion = "v26.11.20"
+const AppVersion = "v26.11.21"
 
 // Config represents the application configuration.
 type Config struct {

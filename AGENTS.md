@@ -17,7 +17,7 @@ It runs Xray binary, exposes a small HTTP API for stats/config updates, and pers
 - `pkg/http/logs`: Log file index + `tail -f` stream handlers for `storage/logs`, shared with P-Manager (which serves its own logs with them and proxies node logs)
 - `pkg/http/middleware`: Shared middleware used in this project and P-Manager
 - `pkg/http/validator`: Echo validator implementation based on `go-playground/validator`
-- `pkg/logger`: A logging wrapper around `zap` logger
+- `pkg/logger`: A logging wrapper around `zap` logger, and `Stamp`, which puts the time on every line a child process writes to its log file (paqet here, ssh in P-Manager)
 - `pkg/paqet`: Runs the [paqet](https://github.com/hanselime/paqet) binary (raw-packet KCP tunnel) as a supervised child process in server or client role from a generated YAML config; detects the network it needs (default-route interface, IPv4, gateway MAC) and manages the iptables rules a server needs. Shared with P-Manager (which runs the clients)
 - `pkg/util`: Generic utils
 - `pkg/worker`: Periodic worker (ticker loop with error logging and panic recovery), shared with P-Manager

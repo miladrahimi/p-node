@@ -98,10 +98,13 @@ func (p *Paqet) runLocked() error {
 		allowPort(p.l, p.config.Port)
 	}
 
+	// paqet stamps its own log lines, but not everything it prints (a panic).
+	out := logger.NewStamp(logFile)
 	cmd := exec.Command(p.binaryPath, "run", "-c", p.configPath)
-	cmd.Stdout, cmd.Stderr = logFile, logFile
+	cmd.Stdout, cmd.Stderr = out, out
+	cmd.WaitDelay = time.Second
 	if err := cmd.Start(); err != nil {
-		_ = logFile.Close()
+		_ = out.Close()
 		return errors.WithStack(err)
 	}
 	p.l.Info("paqet: started", zap.String("config", p.configPath), zap.Int("pid", cmd.Process.Pid))
@@ -112,7 +115,7 @@ func (p *Paqet) runLocked() error {
 
 	go func() {
 		err := cmd.Wait()
-		_ = logFile.Close()
+		_ = out.Close()
 		close(exited)
 		if killed.Load() {
 			return
